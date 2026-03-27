@@ -49,10 +49,8 @@
 <body class="bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
     <div id="root"></div>
 
-
-    <!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
-    <script src="./tv_meta_data.js"></script>
-
+<!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
+<script src="./tv_meta_data.js"></script>
 
     <script>
         // --- 設定・定数 ---
@@ -61,18 +59,8 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 管理者設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+iO0qFHf/7cVYl7HPh8axDkuQhBcyIx1rvVwXuGYjDvdNe0/wq1IkUcsKXJLvlI/CppZDaxyaadw==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX18njhVPs2Vg4wDiYt9iz2liJhyH6R10S+wLJjXkErdnR1h1x2avExQRN8DQpqySCstTH8oNGbdRXA==";
 
-        window.TV_META_DATA = [
-            {
-                content: `|放送日|局|時間|CODE|大分類|中分類|小分類|会社名|商品名|秒数|状況設定|タレント|備考|メモ|BGM|ナレーション|MD_CM_ID|
-|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|
-|2026/3/26|NTV|8:05:40|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|エアリズムインナー|30|女性､後ろ姿､横顔､泣く､別女性､着る､洗顔､3割､海岸､叫ぶ､ｲﾝﾅｰ3枚､右下ﾛｺﾞ|綾瀬はるか､向里祐香| |肌はあなたの親友､#16～､蒸れや摩擦からあなたを守る､ｴｱﾘｽﾞﾑはもうひとつの肌だ､365日AIRism､エアリズムインナー￥1290～/ｷｯｽﾞ￥790､ﾕﾆｸﾛ UNIQLO､LifeWear|ｻｻﾞﾝｵｰﾙｽﾀｰｽﾞ/忘れられた Big Wave|うわｰん…､元気になった?､うん､肌ってあなたの親友みたいなものだ|1910468|
-|2026/3/26|EX|14:33:34|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|エアリズムインナー|30|...
-// ※データが大きいため一部抜粋しています。実際のテキストデータ「テレビCMメタデータ_2026-03-20_2026-03-26.txt」の中身をすべてここに貼り付けてください。
-|2026/3/21|CX|7:52:49|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|ユニクロのUVカットウェア|30|ﾋﾞﾙ街､黄色玉多数降る､黄色ﾊﾞｯｸ文字､女性､ﾌｰﾄﾞ被る､信号､歩く､人多数､日傘さす男性､すれ違う､ﾋﾟｰｽ､女性2人､1人､商品多数､ﾛ|綾瀬はるか､松下洸平| |#28～､雨じゃない日も降っている､ｻﾝｸﾞﾗｽ ￥2490､ｳﾙﾄﾗｽﾄﾚｯﾁ ｴｱﾘｽﾞﾑﾊﾟｰｶｰ ￥2990､UV PROTECTION～､真夏じゃなくても～､ｺﾝﾊﾟｸﾄｱﾝﾌﾞﾚﾗ遮熱 ￥2990､ｷｯｽﾞ ｴｱﾘｽﾞﾑﾌﾙｼﾞｯﾌﾟﾊﾟｰｶｰ ￥1990､ｸﾙｰﾈｯｸｶｰﾃﾞｨｶﾞﾝ ￥2990､UVｶｯﾄは～､ﾕﾆｸﾛ､UNIQLO､LifeWear､怖くないぞ太陽|桑田佳祐/こんな僕で良かったら|UVｶｯﾄはﾕﾆｸﾛで|1988235|`
-            }
-        ];
 
         window.X_DATA = [
             {
@@ -435,7 +423,7 @@
                 return;
               }
 
-              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
               const payload = {
                 contents: newMessages.map(m => ({
@@ -724,7 +712,7 @@
                   setIsLoading(false);
                   return;
                 }
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。`;
 
