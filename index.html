@@ -48,9 +48,8 @@
 </head>
 <body class="bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
     <div id="root"></div>
-
-<!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
-<script src="./tv_meta_data.js"></script>
+    <!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
+    <script src="./tv_meta_data.js"></script>
 
     <script>
         // --- 設定・定数 ---
@@ -59,8 +58,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 管理者設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX18njhVPs2Vg4wDiYt9iz2liJhyH6R10S+wLJjXkErdnR1h1x2avExQRN8DQpqySCstTH8oNGbdRXA==";
-
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1/SGRQX2N23Uev00Cb8HOaZ6tkH2yG5qMtOrdY0Ae5ivr07DeR2OWm7DTI80eDbCuWvswf6e4UcDw==";
 
         window.X_DATA = [
             {
@@ -258,10 +256,21 @@
           const [sidebarOpen, setSidebarOpen] = useState(false);
           
           const [apiKey, setApiKey] = useState('');
-          const [showPasswordModal, setShowPasswordModal] = useState(!!ENCRYPTED_API_KEY);
+          const [showPasswordModal, setShowPasswordModal] = useState(false);
           const [showSettingsModal, setShowSettingsModal] = useState(false);
           const [passwordInput, setPasswordInput] = useState('');
           const [passwordError, setPasswordError] = useState('');
+
+          useEffect(() => {
+              if (ENCRYPTED_API_KEY) {
+                  const savedApiKey = localStorage.getItem('tvcm_analyst_api_key');
+                  if (savedApiKey && savedApiKey.startsWith("AIzaSy")) {
+                      setApiKey(savedApiKey);
+                  } else {
+                      setShowPasswordModal(true);
+                  }
+              }
+          }, []);
 
           const handlePasswordSubmit = () => {
               try {
@@ -269,6 +278,7 @@
                   const originalText = bytes.toString(CryptoJS.enc.Utf8);
                   if (originalText && originalText.startsWith("AIzaSy")) {
                       setApiKey(originalText);
+                      localStorage.setItem('tvcm_analyst_api_key', originalText);
                       setShowPasswordModal(false);
                   } else {
                       setPasswordError("パスワードが間違っているか、有効なAPIキーではありません。");
