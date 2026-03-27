@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVCM Analyst - Powered by M-DATA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.4s ease-out forwards;
+        }
+        .animate-shimmer {
+            animation: shimmer 2s infinite;
+        }
+        /* スクロールバーのカスタマイズ */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 1);
+        }
+    </style>
+</head>
+<body class="bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
+    <div id="root"></div>
+
+    <!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
+    <script src="./tv_meta_data.js"></script>
+
+    <!-- 方法2: HTMLに直接全量を記述する場合 -->
+    <script>
+        // 外部ファイルが読み込まれていない場合のみ、この中のデータを使用します
+        if (!window.TV_META_DATA) {
+            window.TV_META_DATA = [
+                {
+                    content: `|放送日|局|時間|CODE|大分類|中分類|小分類|会社名|商品名|秒数|状況設定|タレント|備考|メモ|BGM|ナレーション|MD_CM_ID|
+|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|
+|2026/3/26|NTV|8:05:40|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|エアリズムインナー|30|女性､後ろ姿､横顔､泣く､別女性､着る､洗顔､3割､海岸､叫ぶ､ｲﾝﾅｰ3枚､右下ﾛｺﾞ|綾瀬はるか､向里祐香| |肌はあなたの親友､#16～､蒸れや摩擦からあなたを守る､ｴｱﾘｽﾞﾑはもうひとつの肌だ､365日AIRism､エアリズムインナー￥1290～/ｷｯｽﾞ￥790､ﾕﾆｸﾛ UNIQLO､LifeWear|ｻｻﾞﾝｵｰﾙｽﾀｰｽﾞ/忘れられた Big Wave|うわｰん…､元気になった?､うん､肌ってあなたの親友みたいなものだ|1910468|
+|2026/3/26|EX|14:33:34|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|エアリズムインナー|30|...
+// ※ここに約490行の全データをそのまま貼り付けてください。バッククォート（\`）内であれば改行もそのまま認識されます。
+|2026/3/21|CX|7:52:49|6024|流通|流通|衣料専門店|ユニクロ/ファーストリテイリング|ユニクロのUVカットウェア|30|ﾋﾞﾙ街､黄色玉多数降る､黄色ﾊﾞｯｸ文字､女性､ﾌｰﾄﾞ被る､信号､歩く､人多数､日傘さす男性､すれ違う､ﾋﾟｰｽ､女性2人､1人､商品多数､ﾛ|綾瀬はるか､松下洸平| |#28～､雨じゃない日も降っている､ｻﾝｸﾞﾗｽ ￥2490､ｳﾙﾄﾗｽﾄﾚｯﾁ ｴｱﾘｽﾞﾑﾊﾟｰｶｰ ￥2990､UV PROTECTION～､真夏じゃなくても～､ｺﾝﾊﾟｸﾄｱﾝﾌﾞﾚﾗ遮熱 ￥2990､ｷｯｽﾞ ｴｱﾘｽﾞﾑﾌﾙｼﾞｯﾌﾟﾊﾟｰｶｰ ￥1990､ｸﾙｰﾈｯｸｶｰﾃﾞｨｶﾞﾝ ￥2990､UVｶｯﾄは～､ﾕﾆｸﾛ､UNIQLO､LifeWear､怖くないぞ太陽|桑田佳祐/こんな僕で良かったら|UVｶｯﾄはﾕﾆｸﾛで|1988235|`
+                }
+            ];
+        }
+
+        window.X_DATA = [
+            {
+                brand: "タウンワーク",
+                content: `**概要** 直近7日間（2026年3月20日〜26日）のタウンワークCM関連投稿を厳格にフィルタリングした結果、Views 500以上かつ除外条件に該当しない投稿はわずか4件のみでした。全体の話題量は控えめで、大きなバズや炎上は発生していません。  
+
+主な反応テーマは以下の2つです。  
+1. **人気俳優へのファン熱**：松平健さん（上様イメージ）を起用してほしいという願望や、過去の三浦春馬さんCMを懐かしむノスタルジック投稿。  
+2. **家族の日常ユーモア**：母親がタウンワークを好む一方で娘たちが他のCMと比較する軽快な会話が共感を呼んでいます。  
+
+CM効果の総評としては「好評だが話題性は限定的」。ポジティブ反応が中心で、ネガティブ投稿は基準未達のため除外されました。記憶定着度は一定あるものの、拡散力は弱く、バイラル効果は低い状況です。エンゲージメント率から見ても、ファン層の忠実な反応は見られますが、新規層への広がりは不足しています。  
+
+**人気投稿 TOP4**（表示回数降順・取得データのみ）  
+1. **投稿内容**: 最後までムガ•ツカジで行くんですね😆 松ケンさんが上様にリブートして、タウンワークのCMにW出演して欲しいです（人´∀\`*）  
+**ソースURL**: https://x.com/goemon345/status/2036279048033517983  
+2. **投稿内容**: 穂香(妹)｢大谷翔平様のCMやたら多いな｣ 美園(姉)｢それ言うたら今田美桜ちゃんやよ｣ww😆 弘子(母)｢タウンワーク💕｣ 穂香｢カフェオレかぁ😌🌸💓｣　美園｢ブラックしか飲まん｣www 弘子｢まとめるか コイツら～😡⚡｣ 美園 穂香すいません😢⤵️⤵️  
+**ソースURL**: https://x.com/mravirex1960to1/status/2036440195286049042  
+**エンゲージメント**: いいね121 / リポスト2 / 表示回数1,040  
+**解説**: 家族の日常会話形式でタウンワークを自然に織り交ぜたユーモア投稿。いいね数が最も高く、共感拡散力が高い。主婦層や家族視聴者への記憶定着に寄与しており、CMの親しみやすさを再確認できる好例。家族向けストーリー性を強化すればさらなる好感度向上が見込めます。  
+
+3. **投稿内容**: 2012-09-07 リクルートタウンワークCMに抜擢された三浦春馬君が 歌う 独唱 メイキング #リクルートタウンワーク #三浦春馬 [YouTubeリンク]  
+**ソースURL**: https://x.com/tTIzXhBCH2rhyjy/status/2036741616304898100  
+**エンゲージメント**: いいね40 / リポスト7`
+            },
+            {
+                brand: "トヨタ",
+                content: `**概要** 直近7日間（2026年3月20日〜26日）の「トヨタ」テレビCM関連投稿をツールで徹底検索・フィルタリングした結果、有効投稿（TV CMそのものを直接話題にしたもの）は極めて少なく、全体トレンドは**静か**でした。Amazon商品広告や政治・企業戦略関連の投稿が大半を占め、純粋なCM反応は散発的です。  
+
+最も目立った反応テーマは以下の2つです。  
+1. **親子・人生の時間軸を描いた感動CM**：父親と娘の視点で交互に同じ人生を見せる構成が「天才的」「号泣必至」と高評価。  
+2. **過去CMのノスタルジー**：90年代アクアCMの楽曲（SUPERCAR）やカローラCM（ジェリー藤尾さん一家）への懐かしみ投稿。  
+
+CM効果の総評：**好評だが話題性・拡散力ともに極めて低調**。ポジティブ反応は一定確認できるものの、ネガティブ投稿はほぼなく、全体として「記憶に残るバズ」は発生していません。トヨタのCMは日常的に露出が多いはずですが、X上での自然な言及が少なく、記憶定着度やバイラル性は現時点で控えめです。感情に訴えるクリエイティブは一定の好感度を保っていますが、一般視聴者の積極的な共有・議論を誘発できていない状況です。
+
+**人気投稿 TOP4**（表示回数降順・取得データのみ）  
+1. **投稿内容**: 毎回これ刺さりすぎてヤバい…！娘と父親の視点で同じ人生を交互に見せる構成が天才的すぎる。
+**ソースURL**: https://x.com/PrincessElendu/status/2036319757268332822  
+**エンゲージメント**: いいね 2 / リポスト 0 / 表示回数 2,798  
+**解説**: 親子視点の人生CMに対する強い感情共感投稿。構成の巧みさを具体的に絶賛しており、トヨタの「心を掴む」ストーリーテリングが記憶定着に寄与している好例。マーケティング視点では、家族向け感動路線がファン層の好感度を維持しているものの、Xでの自然拡散はまだ弱く、ショート動画やTikTok二次利用でさらに伸ばせる可能性が高いです。  
+
+2. **投稿内容**: #YUI #YUI誕生祭 YUIの誕生祭がちょっと盛り上がりましたねw 皆さんのツイート沢山見れて嬉しい🙌✨ そこでついでにツイート笑 以前トヨタのアクアのCMで流れたSUPERCARの「Strobolights」のカバー､リリースしてほしいなぁ🙏 絶対フルで録ってますよね？？  
+**ソースURL**: https://x.com/charo13414/status/2037159866264076634  
+**エンゲージメント**: いいね 17 / リポスト 4 / 表示回数 313  
+**解説**: 過去アクアCMの楽曲に強いノスタルジーを感じる投稿。音楽ファン層の反応として記憶定着度の高さを示しており、トヨタの古いCM資産が今も感情的なつながりを生んでいる証左。マーケティング的には、過去CMの楽曲リバイバルや公式アレンジ版リリースを検討すれば、Z世代への波及も見込めます。`
+            },
+            {
+                brand: "ユニクロ",
+                content: `**概要** 直近7日間（2026年3月20日〜26日）のユニクロテレビCM関連投稿をツールで徹底検索・フィルタリングした結果、有効投稿は10件程度と話題量自体は控えめでした。大きなバズや炎上は発生していませんが、**綾瀬はるか出演CMの上半身裸風演出に対する批判**が圧倒的に集中しています。ニュース記事共有が大半を占め、「なぜ脱がせた？」「アウト」「通報レベル」といった厳しい声が目立ちます。  
+
+もう一つの目立った反応テーマは**CM選曲のミスマッチ**（「皆同じような身なり」の歌詞がユニクロの多様性イメージと矛盾するという指摘）。別CM（馬場さん出演篇）への好感や、BS再放送枠で流れる寄付関連CMへの違和感も散見されますが、全体としてポジティブ投稿は少なく、ネガティブ寄りの反応が優勢です。  
+
+CM効果の総評：**賛否両論だが批判優勢で話題性は限定的**。記憶定着度は高いものの、ブランド印象（特に家族向け好感度）への悪影響が懸念され、バイラル拡散力は弱い状況です。クリエイティブのリスク管理が課題です。
+
+**人気投稿 TOP10**（表示回数降順・取得データのみ）  
+1. **投稿内容**: ユニクロのCM見て、いつも思うのだが…選曲間違ってるよな？ユニクロの服を持ってる人は相当数いるよな？それを否定する歌ってどうなのよ？  
+**ソースURL**: https://x.com/kickslove24/status/...  
+7. **投稿内容**: に「なぜ脱がせた?」ユニクロに聞いた…批判にも「さまざまなご意見があることは認識」(SmartFLASH) #Yahooニュース  
+**ソースURL**: https://x.com/Sportscub174178/status/2037171082076315851  
+**エンゲージメント**: いいね 0 / リポスト 0 / 表示回数 198  
+**解説**: 過剰批判を疑問視するシンプルな反応。ニュース拡散を促す形で一定の議論喚起効果はあるものの、肯定的なバイラルには至らず。Uniqloの対応表明が「火消し」として機能している一方で、積極的な好感回復にはつながっていない点がマーケティング上の課題です。  
+
+8. **投稿内容**: BSの2時間ドラマや時代劇再放送枠で、ユニ◯フのCMが流れるんだけどその内容が酷くて、戦後日本人が脱脂粉乳を支援された映像流して「遺産を外国の子供に寄付するプログラムがあります」って、それを手塚治虫のキャラに言わせる。本当馬鹿にされてるなと思うし、乗せられる老人も馬◯だよなと💀  
+**ソースURL**: https://x.com/iga_harimaru/status/2036617305233539202  
+**エンゲージメント**: いいね 3 / リポスト 0 / 表示回数 147  
+**解説**: 寄付プログラムCMの演出を「馬鹿にされている」と強い違和感で批判。感情に訴える慈善CMの逆効果を指摘しており、高齢者ターゲット層からの反発を招いている可能性を示唆。`
+            },
+            {
+                brand: "第一生命",
+                content: `**概要** 直近7日間（2026年3月20日〜26日）の「Daiichi Life OR 第一生命」テレビCM関連投稿を、x_keyword_search（0件）およびx_semantic_searchで検索・フィルタリングした結果、有効投稿は5件のみでした。全体の話題量は極めて少なく、大きなバズや拡散は確認できませんでした。  
+
+最も目立った反応テーマは以下の2つです。  
+1. **松村北斗さん起用篇の強いインパクト**：ファン層から「遭遇頻度が高い」「インパクト段違い」との好感投稿が突出。  
+2. **リブランディングメッセージ「Daiichi Lifeになぜ変わる？」への疑問・違和感**：生命保険の悪いイメージをカタカナで誤魔化している、意味がわからない、といった批判的反応が散見。  
+
+CM効果の総評：**ファン層では好評だが、一般層の理解・拡散は極めて限定的**。ポジティブ反応は特定タレントファン中心、ネガティブはリブランディングのわかりにくさが主因。ブランド印象の好感度はタレント効果で一定維持されているものの、記憶定着度やバイラル性は低く、メッセージの浸透が課題です。
+
+**人気投稿 TOP5**（表示回数降順・取得データのみ）  
+1. **投稿内容**: 「Daiichi Lifeになぜ変わる？」松村北斗篇 15秒 - YouTube
+今朝TV流しっぱなしにしていて…私がたびたび遭遇するのは、この↓北斗🖤バージョンばかりだよ？（凄くない？インパクトが段違いなんだろうな🙆‍♀️） https://www...
+2. **投稿内容**: サウナでこのCMを見た。
+
+「Daiichi Lifeになぜ変わる？」って、そんなの生命保険の悪いイメージをカタカナにして誤魔化すために決まってるやん。
+
+芸能人が昭和初期みたいな、くっそダサいダボダボズボンを履いて気取って宣伝してて、共感性羞恥心やばすぎて草だった。
+
+生命保険の宣伝、恥ずかしい。  
+**ソースURL**: https://x.com/xinzaixinjiapo/status/2036796088112562333  
+**エンゲージメント**: いいね 0 / リポスト 0 / 表示回数 334  
+**解説**: リブランディングに対する強い違和感をストレートに表現した批判投稿。生命保険業界のネガティブイメージを「カタカナで誤魔化し」と指摘しており、CMのブランド印象形成に逆効果となっている可能性を示唆。共感性羞恥の指摘はクリエイティブの衣装・演出見直しの具体的なヒント。  
+
+3. **投稿内容**: あんだけcm流れるのに第一生命グループがDaiichi Life Groupに変わるのか未だにわからへん。  
+**ソースURL**: https://x.com/dpdpdpdpat/status/2035894817960689966  
+**エンゲージメント**: いいね 1 / リポスト 0 / 表示回数 232  
+**解説**: シンプルな疑問の声。リブランディングの意図が伝わっていない。`
+            },
+            {
+                brand: "渡辺パイプ",
+                content: `  **概要** 直近7日間（2026年3月20日〜26日）の「渡辺パイプ」テレビCM関連投稿をx_keyword_searchおよびx_semantic_searchで徹底検索・フィルタリングした結果、有効投稿は十分な量で確認できました。全体トレンドとしてWBC中継での大量露出が引き続き話題の中心で、**「脳内リピート」「記憶に残る」**という声が非常に多いです。  
+
+最も目立った反応テーマは以下の3つです。  
+1. **BtoB企業初のTVCM戦略の巧みさ**：ラジオ3年先行→TV→WBCで「一人勝ち」という段階的展開がマーケターから絶賛。  
+2. **採用効果と社内モチベーション向上**：建設業界の人手不足対策として「社名認知」を目的としたCMが、学生・社員・取引先すべてに効いているとの指摘。  
+3. **オードリー起用と「聖者の行進」メロディの強烈な印象**：TikTok・Netflix・地上波での拡散も相まって「鬼リピ」現象が発生。  
+
+CM効果の総評：**圧倒的好評・話題性重視で大成功**。ポジティブ反応がほぼ100%を占め、ネガティブは確認されませんでした。BtoB企業としては異例の記憶定着度・バイラル性を発揮し、採用・ブランディング双方に直結する極めて効果の高いCMとなっています。
+
+**人気投稿 TOP10**（表示回数降順でランキング）  
+1. **投稿内容**: 渡辺パイプ、創業73年で初の...
+6. **投稿内容**: https://x.com/sub_oohthin/status/2036924396817047948  
+**エンゲージメント**: いいね 1 / リポスト 0 / 表示回数 847  
+**解説**: WBC視聴者の自然な実体験共有。CM露出量の多さと記憶残りを端的に示しており、スポーツ中継での集中投下が一般層への認知拡大に成功した証拠。低コストで高いリーチを実現したメディアプランニングの成功例です。  
+
+7. **投稿内容**: TikTokにも渡辺パイプの広告出てきてしぬマーケティングうますぎだろ  
+**ソースURL**: https://x.com/__nikudaisuki/status/2036773082388726084  
+**エンゲージメント**: いいね 3 / リポスト 0 / 表示回数 563  
+**解説**: 地上波以外（TikTok）への波及を指摘した投稿。TVCMがSNS二次拡散を誘発している好循環を示しており、クロスメディア戦略の効果を体現。Z世代層へのリーチも同時に獲得できている点がマーケティング的に価値が高いです。  
+
+8. **投稿内容**: 渡辺パイプ、Netflixだけでなく地上波てもCM打ちまくっているな。今年度の新卒採用にかなり効果ありそう  
+**ソースURL**: https://x.com/naotakasugiyama/status/2035239161461149786  
+**エンゲージメント**: いいね 4 / リポスト 0 / 表示回数 400...`
+            }
+        ];
+    </script>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // ============================================================
+        // ICONS (Inline SVG)
+        // ============================================================
+        function IconChat(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>; }
+        function IconChart(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>; }
+        function IconTV(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>; }
+        function IconX(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>; }
+        function IconLightning(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>; }
+        function IconUser(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>; }
+        function IconMenu(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>; }
+        function IconSend(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>; }
+        function IconDatabase(props) { return <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>; }
+
+        // ============================================================
+        // DATA CONSTANTS
+        // ============================================================
+
+        const TV_CM_DATA = "【テレビCMメタデータ 生データ】\n\n" + window.TV_META_DATA[0].content;
+
+        const X_ANALYSIS_DATA = "【X（旧Twitter）分析データ 2026/3/20〜3/26】\n\n" + 
+            window.X_DATA.map(item => `━━━━━━━━━━━━━━━━━━\n■ ${item.brand}\n━━━━━━━━━━━━━━━━━━\n${item.content}`).join("\n\n");
+
+        const STATS_DATA = [
+          { brand: "インディード(関連含む)", tv: 213, xLikes: 152, xReposts: 2, xViews: 22067, remark: "放映回数トップだが、SNS波及は限定的" },
+          { brand: "第一生命", tv: 106, xLikes: 221, xReposts: 15, xViews: 6921, remark: "露出は多いが一般層の理解・拡散に課題" },
+          { brand: "ユニクロ", tv: 69, xLikes: 0, xReposts: 0, xViews: 0, remark: "分析期間内の有効Xデータなし" },
+          { brand: "トヨタ", tv: 68, xLikes: 19, xReposts: 4, xViews: 3111, remark: "内容は好評だがバイラル性・拡散力が弱い" },
+          { brand: "渡辺パイプ", tv: 37, xLikes: 1187, xReposts: 137, xViews: 257808, remark: "放映回数は少ないが圧倒的なSNS波及効果" },
+        ];
+
+        const SYSTEM_PROMPT_BASE = `あなたは株式会社エム・データのシニアTVCMアナリストです。
+株式会社エム・データは「TVメタデータ」を生成・配信するデータベンダーです。"TVメタデータ"は、関東（東京）・中部（愛知）・近畿（大阪）のテレビ局で放送されたテレビ番組やCMの内容をテキストデータとしてデータベース化したもので、「(1)番組データ」「(2)CMデータ」「(3)アイテムデータ」「(4)スポットデータ」で構成されます。
+
+テレビCMメタデータとX（旧Twitter）分析データを活用し、マーケティング戦略に直結する高精度な分析と具体的なインサイトを提供するプロフェッショナルです。
+
+【分析原則】
+- 結論ファーストで回答する
+- 与えられたデータについて、ミス無く、正確に集計・分析すること
+- データに基づいた客観的分析を行い、推測の場合は明示する
+- マーケター・広告担当者が即実務で使えるインサイトを提供する
+- 数値や根拠を積極的に引用する
+- データが存在しない場合は「不明」と明示し、推測しない
+
+【回答スタイル】
+- 日本語で回答
+- 見出しや箇条書きを効果的に使う
+- 専門的でありながら明快に
+`;
+
+        function buildSystemPrompt(source) {
+          let dataSection = "";
+          if (source === "tv") {
+            dataSection = "\n【利用可能なデータソース: テレビCMメタデータのみ】\n" + TV_CM_DATA;
+          } else if (source === "x") {
+            dataSection = "\n【利用可能なデータソース: X分析データのみ】\n" + X_ANALYSIS_DATA;
+          } else {
+            dataSection = "\n【利用可能なデータソース: テレビCMメタデータ＋X分析データ（両方）】\n" + TV_CM_DATA + "\n" + X_ANALYSIS_DATA;
+          }
+          return SYSTEM_PROMPT_BASE + dataSection;
+        }
+
+        const SUGGESTIONS = {
+          tv: [
+            "最も放映回数が多いブランドはどこですか？",
+            "プライム帯に集中している商品を教えてください",
+            "ユニクロの出稿戦略を分析してください",
+            "各局の特徴的な出稿傾向は？",
+          ],
+          x: [
+            "X上で最もバズったCMはどれですか？",
+            "第一生命のリブランディングCMへの反応を分析して",
+            "渡辺パイプのバイラル成功要因を教えて",
+            "各ブランドのSNS反応をランキングして",
+          ],
+          both: [
+            "TV放映量とX反応が乖離しているブランドはどれ？",
+            "渡辺パイプの総合的なCM効果を評価して",
+            "第一生命はTV露出量に対してX反応が少ない理由は？",
+            "今週のCM市場で注目すべきトレンドを教えて",
+          ],
+        };
+
+        const SOURCE_CONFIG = {
+          tv: { label: "TV CMデータ", icon: <IconTV className="w-4 h-4" />, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/30", activeBg: "bg-blue-500/20" },
+          x: { label: "X分析データ", icon: <IconX className="w-4 h-4" />, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30", activeBg: "bg-purple-500/20" },
+          both: { label: "両方", icon: <IconLightning className="w-4 h-4" />, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30", activeBg: "bg-amber-500/20" },
+        };
+
+        // ============================================================
+        // COMPONENTS
+        // ============================================================
+
+        function App() {
+          const [currentView, setCurrentView] = useState('chat');
+          const [sidebarOpen, setSidebarOpen] = useState(false);
+
+          return (
+            <div className="flex h-screen bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
+              {/* Mobile sidebar overlay */}
+              {sidebarOpen && (
+                <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+              )}
+
+              {/* Sidebar */}
+              <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 w-64 bg-[#0d1526] border-r border-slate-800 flex flex-col z-30 transition-transform duration-200 ease-in-out`}>
+                <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white">M</div>
+                      <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">TVCM Analyst</h1>
+                    </div>
+                    <p className="text-[10px] text-slate-500 tracking-wider uppercase flex items-center gap-1">
+                      <IconDatabase className="w-3 h-3" /> Powered by M-DATA
+                    </p>
+                  </div>
+                  <button className="lg:hidden text-slate-400 p-1" onClick={() => setSidebarOpen(false)}>✕</button>
+                </div>
+                
+                <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-3">メニュー</div>
+                  <button 
+                    onClick={() => { setCurrentView('chat'); setSidebarOpen(false); }} 
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${currentView === 'chat' ? 'bg-blue-600/20 text-blue-400 shadow-sm border border-blue-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'}`}
+                  >
+                    <IconChat className="w-5 h-5" /> <span className="font-medium text-sm">AI アナリストチャット</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentView('stats'); setSidebarOpen(false); }} 
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${currentView === 'stats' ? 'bg-purple-600/20 text-purple-400 shadow-sm border border-purple-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'}`}
+                  >
+                    <IconChart className="w-5 h-5" /> <span className="font-medium text-sm">統計ダッシュボード</span>
+                  </button>
+                </nav>
+                
+                <div className="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                  対象期間: 2026/3/20 - 3/26
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col h-screen min-w-0 bg-[#0a0e1a]">
+                {/* Mobile Header */}
+                <div className="lg:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-[#0d1526]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white">M</div>
+                    <h1 className="text-md font-bold text-slate-200">TVCM Analyst</h1>
+                  </div>
+                  <button onClick={() => setSidebarOpen(true)} className="text-slate-400 p-1 rounded-md hover:bg-slate-800">
+                    <IconMenu />
+                  </button>
+                </div>
+
+                {currentView === 'chat' ? <ChatArea /> : <StatsDashboard />}
+              </div>
+            </div>
+          );
+        }
+
+        function ChatArea() {
+          const [source, setSource] = useState("both");
+          const [messages, setMessages] = useState([]);
+          const [input, setInput] = useState("");
+          const [loading, setLoading] = useState(false);
+          const bottomRef = useRef(null);
+          const inputRef = useRef(null);
+
+          useEffect(() => {
+            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+          }, [messages, loading]);
+
+          // Exponential backoff for Gemini API
+          const fetchWithRetry = async (url, options, maxRetries = 5) => {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+              try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+              } catch (error) {
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, delays[i]));
+              }
+            }
+          };
+
+          const sendMessage = async (text) => {
+            const query = text || input.trim();
+            if (!query || loading) return;
+            setInput("");
+
+            const userMsg = { role: "user", content: query };
+            const newMessages = [...messages, userMsg];
+            setMessages(newMessages);
+            setLoading(true);
+
+            try {
+              const apiKey = ""; // 実行環境にて自動注入されます
+              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+              const payload = {
+                contents: newMessages.map(m => ({
+                  role: m.role === "user" ? "user" : "model",
+                  parts: [{ text: m.content }]
+                })),
+                systemInstruction: {
+                  parts: [{ text: buildSystemPrompt(source) }]
+                }
+              };
+
+              const data = await fetchWithRetry(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+
+              const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "応答を取得できませんでした。";
+              setMessages([...newMessages, { role: "assistant", content: textResponse }]);
+            } catch (err) {
+              console.error(err);
+              setMessages([...newMessages, {
+                role: "assistant",
+                content: `⚠️ エラーが発生しました。しばらく経ってから再度お試しください。\n詳細: ${err.message}`,
+              }]);
+            } finally {
+              setLoading(false);
+              // フォーカスを戻す（デスクトップのみ）
+              if (window.innerWidth >= 1024) {
+                setTimeout(() => inputRef.current?.focus(), 100);
+              }
+            }
+          };
+
+          const handleKeyDown = (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          };
+
+          const cfg = SOURCE_CONFIG[source];
+
+          return (
+            <div className="flex flex-col h-full w-full relative">
+              {/* Header controls */}
+              <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-[#0a0e1a] to-transparent pointer-events-none">
+                <div className="pointer-events-auto bg-[#0d1526]/80 backdrop-blur-md rounded-xl p-1 border border-slate-700/50 flex shadow-lg">
+                  {Object.entries(SOURCE_CONFIG).map(([key, c]) => (
+                    <button
+                      key={key}
+                      onClick={() => setSource(key)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                        source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-500/30` : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      }`}
+                    >
+                      {c.icon} <span className="hidden sm:inline">{c.label}</span>
+                    </button>
+                  ))}
+                </div>
+                
+                {messages.length > 0 && (
+                  <button
+                    onClick={() => setMessages([])}
+                    className="pointer-events-auto px-3 py-1.5 text-xs font-medium text-slate-400 bg-[#0d1526]/80 backdrop-blur-md border border-slate-700/50 rounded-lg hover:text-white hover:bg-slate-800 transition-colors"
+                  >
+                    会話をクリア
+                  </button>
+                )}
+              </div>
+
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto pt-20 px-4 sm:px-6 pb-4 scroll-smooth">
+                <div className="max-w-3xl mx-auto">
+                  {messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center mt-8">
+                      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${cfg.bg} border ${cfg.border} mb-8 animate-fade-in`}>
+                        <div className={`w-2 h-2 rounded-full bg-${cfg.color.split('-')[1]}-400 animate-pulse`} />
+                        <span className={`text-xs font-bold tracking-widest uppercase ${cfg.color}`}>
+                          {cfg.label} 接続中
+                        </span>
+                      </div>
+                      
+                      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent mb-4 tracking-tight">
+                        分析を始めましょう
+                      </h2>
+                      <p className="text-slate-400 text-sm max-w-md mb-10 leading-relaxed">
+                        エム・データが提供する最新のテレビCMメタデータとXの反響データを組み合わせ、マーケティングインサイトを抽出します。
+                      </p>
+
+                      <div className="w-full max-w-2xl text-left">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 ml-1">おすすめの質問</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {SUGGESTIONS[source].map((s, i) => (
+                            <button
+                              key={i}
+                              onClick={() => sendMessage(s)}
+                              className="text-left px-4 py-3 rounded-xl border border-slate-700/50 bg-[#0d1526]/50 hover:bg-slate-800/80 hover:border-slate-600 text-slate-300 text-sm transition-all shadow-sm flex items-start gap-3 group"
+                            >
+                              <span className={`mt-0.5 ${cfg.color} opacity-70 group-hover:opacity-100 transition-opacity`}><IconLightning className="w-4 h-4" /></span>
+                              <span>{s}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {messages.map((msg, i) => (
+                        <MessageBubble key={i} msg={msg} sourceColor={cfg.color.split('-')[1]} />
+                      ))}
+                      {loading && (
+                        <div className="flex items-start gap-4 animate-fade-in">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-800 border border-slate-700`}>
+                            <div className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></div>
+                          </div>
+                          <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[#0d1526] border border-slate-800 text-slate-400 text-sm shadow-sm flex items-center gap-2">
+                            データを分析しています<span className="animate-pulse">...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div ref={bottomRef} className="h-4" />
+                </div>
+              </div>
+
+              {/* Input Area */}
+              <div className="p-4 sm:p-6 bg-gradient-to-t from-[#0a0e1a] via-[#0a0e1a] to-transparent">
+                <div className="max-w-3xl mx-auto relative">
+                  <div className="relative flex items-end shadow-xl rounded-2xl bg-[#0d1526] border border-slate-700 focus-within:border-slate-500 focus-within:ring-1 focus-within:ring-slate-500 transition-all">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="CMトレンドやSNS反響について質問する..."
+                      className="flex-1 max-h-40 min-h-[56px] py-4 pl-5 pr-14 bg-transparent text-slate-100 text-sm resize-none outline-none leading-relaxed placeholder:text-slate-500"
+                      rows={1}
+                    />
+                    <button
+                      onClick={() => sendMessage()}
+                      disabled={loading || !input.trim()}
+                      className={`absolute right-2 bottom-2 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                        loading || !input.trim() 
+                          ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                          : "bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95"
+                      }`}
+                    >
+                      <IconSend className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="text-center mt-2">
+                    <span className="text-[10px] text-slate-500 font-medium">Shift + Enter で改行</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        function MessageBubble({ msg, sourceColor }) {
+          const isUser = msg.role === "user";
+
+          const renderContent = (text) => {
+            return text.split("\n").map((line, i) => {
+              if (line.match(/^#{2,3}\s+(.*)/)) {
+                const text = line.replace(/^#{2,3}\s+/, "");
+                return <h3 key={i} className="text-lg font-bold text-white mt-5 mb-2 border-b border-slate-700/50 pb-1">{text}</h3>;
+              }
+              if (line.match(/^[-*]\s+(.*)/)) {
+                const text = line.replace(/^[-*]\s+/, "");
+                return (
+                  <div key={i} className="flex gap-2 mb-1.5 ml-1">
+                    <span className={`text-${sourceColor}-400 mt-1 flex-shrink-0`}><IconLightning className="w-3.5 h-3.5" /></span>
+                    <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
+                  </div>
+                );
+              }
+              if (line.match(/^\d+\.\s+(.*)/)) {
+                const num = line.match(/^(\d+)/)[1];
+                const text = line.replace(/^\d+\.\s+/, "");
+                return (
+                  <div key={i} className="flex gap-2.5 mb-1.5 ml-1 items-start">
+                    <span className={`text-[10px] font-bold bg-${sourceColor}-500/20 text-${sourceColor}-300 px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0`}>{num}</span>
+                    <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
+                  </div>
+                );
+              }
+              if (line.trim() === "") return <div key={i} className="h-3" />;
+              
+              return <div key={i} className="mb-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: formatBold(line) }} />;
+            });
+          };
+
+          const formatBold = (text) => {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-100 font-bold">$1</strong>');
+          };
+
+          return (
+            <div className={`flex items-start gap-3 sm:gap-4 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+                isUser 
+                  ? "bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600" 
+                  : `bg-gradient-to-br from-${sourceColor}-600/20 to-${sourceColor}-500/10 border border-${sourceColor}-500/30`
+              }`}>
+                {isUser ? <IconUser className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" /> : <div className={`font-bold text-xs sm:text-sm text-${sourceColor}-400`}>AI</div>}
+              </div>
+              
+              <div className={`max-w-[85%] sm:max-w-[75%] px-4 sm:px-5 py-3 sm:py-4 text-[13px] sm:text-[14px] shadow-sm ${
+                isUser 
+                  ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm" 
+                  : "bg-[#0d1526] border border-slate-700/60 text-slate-300 rounded-2xl rounded-tl-sm"
+              }`}>
+                {isUser ? msg.content : <div className="text-slate-300 space-y-0">{renderContent(msg.content)}</div>}
+              </div>
+            </div>
+          );
+        }
+
+        function StatsDashboard() {
+          const [queries, setQueries] = useState(['']);
+          const [startDate, setStartDate] = useState('2026-03-20');
+          const [endDate, setEndDate] = useState('2026-03-26');
+          const [source, setSource] = useState('both');
+          
+          const [hasSearched, setHasSearched] = useState(false);
+          const [submittedQueries, setSubmittedQueries] = useState([]);
+          const [filteredData, setFilteredData] = useState([]);
+          const [comparisonText, setComparisonText] = useState('');
+          const [isLoading, setIsLoading] = useState(false);
+
+          // Gemini API呼び出し用のバックオフ関数
+          const fetchWithRetry = async (url, options, maxRetries = 5) => {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+              try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+              } catch (error) {
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, delays[i]));
+              }
+            }
+          };
+
+          const handleAddQuery = () => {
+            if (queries.length < 3) setQueries([...queries, '']);
+          };
+
+          const handleUpdateQuery = (index, value) => {
+            const newQueries = [...queries];
+            newQueries[index] = value;
+            setQueries(newQueries);
+          };
+
+          const handleRemoveQuery = (index) => {
+            const newQueries = [...queries];
+            newQueries.splice(index, 1);
+            setQueries(newQueries);
+          };
+
+          const handleSearch = async () => {
+            const active = queries.map(q => q.trim()).filter(q => q !== '');
+            setSubmittedQueries(active);
+            
+            let dataToDisplay = STATS_DATA;
+            if (active.length > 0) {
+              dataToDisplay = STATS_DATA.filter(d => 
+                active.some(q => 
+                  d.brand.includes(q) || d.remark.includes(q)
+                )
+              );
+            }
+            setFilteredData(dataToDisplay);
+            setHasSearched(true);
+            setComparisonText('');
+
+            // 複数キーワードの場合はGeminiで比較結果を生成
+            if (active.length > 1) {
+              setIsLoading(true);
+              try {
+                const apiKey = ""; // 実行環境にて自動注入
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。`;
+
+                const payload = {
+                  contents: [{ role: "user", parts: [{ text: prompt }] }],
+                  systemInstruction: { parts: [{ text: buildSystemPrompt(source) }] }
+                };
+
+                const response = await fetchWithRetry(endpoint, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                });
+
+                const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "比較結果を取得できませんでした。";
+                setComparisonText(text);
+              } catch (err) {
+                console.error(err);
+                setComparisonText("⚠️ 比較結果の生成中にエラーが発生しました。");
+              } finally {
+                setIsLoading(false);
+              }
+            }
+          };
+
+          const formatText = (text) => {
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
+            formatted = formatted.replace(/\n/g, '<br/>');
+            return formatted;
+          };
+
+          const renderSourceSelector = () => (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(SOURCE_CONFIG).map(([key, c]) => (
+                <button
+                  key={key}
+                  onClick={() => setSource(key)}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                    source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-500/30` : 'text-slate-400 bg-slate-800/50 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  {c.icon} <span>{c.label}</span>
+                </button>
+              ))}
+            </div>
+          );
+
+          const renderSearchForm = (isCompact = false) => (
+            <div className={`bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-lg w-full ${!isCompact ? 'max-w-2xl mx-auto' : 'mb-6'}`}>
+              {!isCompact && (
+                <div className="mb-6 text-center">
+                  <div className="inline-flex p-3 rounded-full bg-blue-500/10 mb-3">
+                    <IconChart className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">統計ダッシュボード検索</h2>
+                  <p className="text-slate-400 text-sm mt-2">キーワード、期間、データソースを指定して分析を実行します</p>
+                </div>
+              )}
+
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">検索キーワード (最大3つ)</label>
+                  <div className="space-y-3">
+                    {queries.map((q, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={q}
+                          onChange={(e) => handleUpdateQuery(i, e.target.value)}
+                          placeholder="例: トヨタ、インディード"
+                          className="flex-1 bg-slate-900 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-2.5 text-slate-200 text-sm outline-none transition-all"
+                        />
+                        {queries.length > 1 && (
+                          <button onClick={() => handleRemoveQuery(i)} className="p-2 text-slate-500 hover:text-red-400 transition-colors">✕</button>
+                        )}
+                      </div>
+                    ))}
+                    {queries.length < 3 && (
+                      <button onClick={handleAddQuery} className="text-sm text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">+ キーワードを追加して比較</button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">検索期間</label>
+                    <div className="flex items-center gap-2">
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none [color-scheme:dark]" />
+                      <span className="text-slate-500">〜</span>
+                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none [color-scheme:dark]" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">データソース</label>
+                    {renderSourceSelector()}
+                  </div>
+                </div>
+
+                <div className={`pt-4 ${isCompact ? 'flex justify-end' : ''}`}>
+                  <button 
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                    className={`w-full ${isCompact ? 'md:w-auto px-8' : ''} py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
+                      isLoading ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95'
+                    }`}
+                  >
+                    {isLoading ? (
+                      <><div className="w-4 h-4 rounded-full border-2 border-slate-500 border-t-transparent animate-spin"></div> 検索中...</>
+                    ) : (
+                      <><IconChart className="w-5 h-5" /> 分析を実行</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+
+          if (!hasSearched) {
+            return (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#0a0e1a] flex flex-col items-center justify-center">
+                {renderSearchForm(false)}
+              </div>
+            );
+          }
+
+          const maxTv = filteredData.length > 0 ? Math.max(...filteredData.map(d => d.tv)) : 0;
+          const maxXViews = filteredData.length > 0 ? Math.max(...filteredData.map(d => d.xViews)) : 0;
+          const totalTv = filteredData.reduce((sum, d) => sum + d.tv, 0);
+          const totalViews = filteredData.reduce((sum, d) => sum + d.xViews, 0);
+
+          return (
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#0a0e1a]">
+              <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+                
+                {renderSearchForm(true)}
+
+                {/* 比較結果 (Gemini 生成) */}
+                {submittedQueries.length > 1 && (
+                   <div className="bg-[#0d1526] border border-blue-500/30 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+                     <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                     <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                       <IconLightning className="w-5 h-5 text-blue-400" /> AI比較分析インサイト
+                     </h3>
+                     {isLoading ? (
+                       <div className="text-slate-400 animate-pulse text-sm">データに基づき比較結果を生成中...</div>
+                     ) : (
+                       <div className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(comparisonText) }} />
+                     )}
+                   </div>
+                )}
+
+                {/* Overview KPIs */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                  <KpiCard title="総放映回数" value={totalTv} unit="回" icon={<IconTV className="w-5 h-5 text-blue-400" />} />
+                  <KpiCard title="X 総表示回数" value={totalViews >= 1000 ? (totalViews/1000).toFixed(1) : totalViews} unit={totalViews >= 1000 ? "K回" : "回"} icon={<IconX className="w-5 h-5 text-purple-400" />} />
+                  <KpiCard title="分析対象ブランド" value={filteredData.length} unit="社" icon={<IconDatabase className="w-5 h-5 text-emerald-400" />} />
+                  <KpiCard title="期間" value="7" unit="日間" icon={<IconChart className="w-5 h-5 text-amber-400" />} />
+                </div>
+                
+                {/* Charts Grid */}
+                <div className={`grid grid-cols-1 ${source === 'both' ? 'lg:grid-cols-2' : ''} gap-4 sm:gap-6`}>
+                  {/* TV Chart */}
+                  {(source === 'tv' || source === 'both') && (
+                  <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="p-2 rounded-lg bg-blue-500/10"><IconTV className="w-5 h-5 text-blue-400" /></div>
+                      <h3 className="text-lg font-bold text-slate-100">TVCM 放映回数ランキング</h3>
+                    </div>
+                    {filteredData.length > 0 ? (
+                    <div className="space-y-5">
+                      {[...filteredData].sort((a,b)=>b.tv - a.tv).map(d => (
+                        <div key={d.brand} className="group">
+                          <div className="flex justify-between text-sm mb-1.5">
+                            <span className="font-medium text-slate-300 group-hover:text-white transition-colors">{d.brand}</span>
+                            <span className="text-blue-400 font-bold">{d.tv}回</span>
+                          </div>
+                          <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full relative transition-all duration-500" 
+                              style={{width: `${maxTv > 0 ? (d.tv/maxTv)*100 : 0}%`}}
+                            >
+                              <div className="absolute inset-0 bg-white/20 w-full animate-shimmer"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    ) : (
+                      <p className="text-slate-500 text-sm">該当するデータがありません。</p>
+                    )}
+                  </div>
+                  )}
+
+                  {/* X Chart */}
+                  {(source === 'x' || source === 'both') && (
+                  <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="p-2 rounded-lg bg-purple-500/10"><IconX className="w-5 h-5 text-purple-400" /></div>
+                      <h3 className="text-lg font-bold text-slate-100">X(Twitter) 表示回数ランキング</h3>
+                    </div>
+                    {filteredData.length > 0 ? (
+                    <div className="space-y-5">
+                      {[...filteredData].sort((a,b)=>b.xViews - a.xViews).map(d => (
+                        <div key={d.brand} className="group">
+                          <div className="flex justify-between text-sm mb-1.5">
+                            <span className="font-medium text-slate-300 group-hover:text-white transition-colors">{d.brand}</span>
+                            <span className="text-purple-400 font-bold">{d.xViews === 0 ? 'データなし' : `${d.xViews.toLocaleString()}回`}</span>
+                          </div>
+                          <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="bg-gradient-to-r from-purple-600 to-purple-400 h-full rounded-full relative transition-all duration-500" 
+                              style={{width: `${d.xViews === 0 ? 0 : Math.max((d.xViews/maxXViews)*100, 2)}%`}}
+                            >
+                               {d.xViews > 0 && <div className="absolute inset-0 bg-white/20 w-full animate-shimmer" style={{animationDelay: '0.5s'}}></div>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    ) : (
+                      <p className="text-slate-500 text-sm">該当するデータがありません。</p>
+                    )}
+                  </div>
+                  )}
+                </div>
+
+                {/* Data Table */}
+                <div className="bg-[#0d1526] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                      <IconChart className="w-5 h-5 text-emerald-400" /> 総合クロス分析サマリー
+                    </h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                      <thead className="bg-slate-800/40 text-slate-400 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold">ブランド</th>
+                          <th className="px-6 py-4 font-semibold text-right">TV放映</th>
+                          <th className="px-6 py-4 font-semibold text-right">X いいね</th>
+                          <th className="px-6 py-4 font-semibold text-right">X 表示</th>
+                          <th className="px-6 py-4 font-semibold w-full">分析サマリー</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {filteredData.length > 0 ? filteredData.map(d => (
+                          <tr key={d.brand} className="hover:bg-slate-800/30 transition-colors">
+                            <td className="px-6 py-4 font-bold text-white">{d.brand}</td>
+                            <td className="px-6 py-4 text-right font-medium text-blue-400">{d.tv}</td>
+                            <td className="px-6 py-4 text-right font-medium text-purple-400">{d.xLikes === 0 && d.brand === 'ユニクロ' ? '-' : d.xLikes.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-right font-medium text-purple-400">{d.xViews === 0 && d.brand === 'ユニクロ' ? '-' : d.xViews.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-slate-300 whitespace-normal min-w-[200px]">{d.remark}</td>
+                          </tr>
+                        )) : (
+                          <tr>
+                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500">該当するデータがありません。</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div className="h-8"></div>
+              </div>
+            </div>
+          );
+        }
+
+        function KpiCard({ title, value, unit, icon }) {
+          return (
+            <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-slate-700 transition-colors">
+              <div className="flex justify-between items-start mb-3">
+                <h4 className="text-xs sm:text-sm font-medium text-slate-400">{title}</h4>
+                {icon}
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">{value}</span>
+                <span className="text-xs font-medium text-slate-500">{unit}</span>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
