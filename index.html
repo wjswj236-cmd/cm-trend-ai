@@ -423,7 +423,7 @@
                 return;
               }
 
-              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
               const payload = {
                 contents: newMessages.map(m => ({
@@ -712,7 +712,7 @@
                   setIsLoading(false);
                   return;
                 }
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
                 
                 const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。`;
 
