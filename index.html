@@ -71,7 +71,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+7p98m/nrRDoCM876EZ0Adq8BfQ2ZjnLVYY3u88oTyyTA0XrQZc1caHFTaw3XJvzm/Qcmq4woYew==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX18SIwzDsyM3/sB+MLxf/JHoPX/DZ66lYwjSP0/w/6p8fSRWnri0I6jB/ILUIhjMFbMJBmCeA0sqPw==";
 
         window.X_DATA = [
             {
@@ -646,7 +646,7 @@
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="CMトレンドやSNS反響について質問する..."
+                      placeholder="サンプルのため下記のみ検索できます　→トヨタ、ユニクロ、第一生命、タウンワーク、渡辺パイプ"
                       className="flex-1 max-h-40 min-h-[56px] py-4 pl-5 pr-14 bg-transparent text-slate-900 dark:text-slate-100 text-sm resize-none outline-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       rows={1}
                     />
@@ -867,7 +867,7 @@
                           type="text"
                           value={q}
                           onChange={(e) => handleUpdateQuery(i, e.target.value)}
-                          placeholder="例: トヨタ、インディード"
+                          placeholder="サンプルのため下記のみ検索できます　→トヨタ、ユニクロ、第一生命、タウンワーク、渡辺パイプ"
                           className="flex-1 bg-[#ffffff] dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 text-sm outline-none transition-all"
                         />
                         {queries.length > 1 && (
