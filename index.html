@@ -71,7 +71,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1/OFqa7KwJFhPK3U5LR1Lasm6VI9hqt5T5OZ4afPP+7kXJoEFMZn3vnRyV9rTT5gYa7z0MUWe7lrg==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+7p98m/nrRDoCM876EZ0Adq8BfQ2ZjnLVYY3u88oTyyTA0XrQZc1caHFTaw3XJvzm/Qcmq4woYew==";
 
         window.X_DATA = [
             {
@@ -123,11 +123,11 @@
             (window.X_DATA ? window.X_DATA.map(item => `━━━━━━━━━━━━━━━━━━\n■ ${item.brand}\n━━━━━━━━━━━━━━━━━━\n${item.content}`).join("\n\n") : "※X分析データが読み込まれていません。");
 
         const STATS_DATA = [
-          { brand: "インディード(関連含む)", tv: 213, xLikes: 152, xReposts: 2, xViews: 22067, remark: "放映回数トップだが、SNS波波は限定的" },
-          { brand: "第一生命", tv: 106, xLikes: 221, xReposts: 15, xViews: 6921, remark: "露出は多いが一般層の理解・拡散に課題" },
-          { brand: "ユニクロ", tv: 69, xLikes: 0, xReposts: 0, xViews: 0, remark: "分析期間内の有効Xデータなし" },
-          { brand: "トヨタ", tv: 68, xLikes: 19, xReposts: 4, xViews: 3111, remark: "内容は好評だがバイラル性・拡散力が弱い" },
-          { brand: "渡辺パイプ", tv: 37, xLikes: 1187, xReposts: 137, xViews: 257808, remark: "放映回数は少ないが圧倒的なSNS波及効果" },
+          { brand: "タウンワーク", tv: 70, xLikes: 161, xReposts: 9, xViews: 1040, remark: "好評だが話題性は限定的。家族向けユーモアが共感を呼ぶ" },
+          { brand: "第一生命", tv: 106, xLikes: 1, xReposts: 0, xViews: 566, remark: "タレントファンには好評も、リブランディング意図の理解・拡散に課題" },
+          { brand: "ユニクロ", tv: 69, xLikes: 3, xReposts: 0, xViews: 345, remark: "演出への批判が集中しネガティブ優勢。話題性は限定的" },
+          { brand: "トヨタ", tv: 68, xLikes: 19, xReposts: 4, xViews: 3111, remark: "感動路線で好感度は保つが、自然な言及が少なく拡散力は極めて低調" },
+          { brand: "渡辺パイプ", tv: 37, xLikes: 8, xReposts: 0, xViews: 1810, remark: "WBC露出で圧倒的話題。採用・社内モチベーションにも好影響" },
         ];
 
         const SYSTEM_PROMPT_BASE = `あなたは株式会社エム・データのシニアTVCMアナリストです。
@@ -378,7 +378,7 @@
                     <div className="flex justify-center mb-2 p-2 w-full">
                       <img 
                         src="./logo.png" 
-                        alt="CM Trend AI Logo" 
+                        alt="CMトレンドAI" 
                         className="w-[200px] sm:w-[220px] h-auto object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none';
@@ -436,7 +436,7 @@
                   <div className="flex items-center p-1.5 rounded-lg" style={{ backgroundColor: '#0d1526' }}>
                     <img 
                       src="./logo.png" 
-                      alt="CM Trend AI Logo" 
+                      alt="CMトレンドAI" 
                       className="h-8 w-auto object-contain"
                       onError={(e) => {
                         e.target.style.display = 'none';
