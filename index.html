@@ -6,6 +6,11 @@
     <title>CMトレンドAI - Powered by M-DATA</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -45,8 +50,16 @@
             background: rgba(71, 85, 105, 1);
         }
     </style>
+    <script>
+        // 初期読み込み時のテーマ適用（チラつき防止）
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light' || !localStorage.getItem('theme')) {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
+<body class="bg-[#f0f4f8] dark:bg-[#0a0e1a] text-slate-800 dark:text-slate-200 font-sans overflow-hidden transition-colors duration-300">
     <div id="root"></div>
     <!-- 方法1: 外部サーバーのJSファイルとして読み込む場合（推奨） -->
     <script src="./tv_meta_data.js"></script>
@@ -55,10 +68,10 @@
         // --- 設定・定数 ---
         // --- SECURITY CONFIG ---
         // 【重要】設定手順:
-        // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 管理者設定」をクリック
+        // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX18nb4VIIzoY/WFvDmehGwkYeV/g7oGhtpGUAJ+w6lqoFRiNykXW98Ins2xZCsS5pd3VKX6Zk24tHg==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1/OFqa7KwJFhPK3U5LR1Lasm6VI9hqt5T5OZ4afPP+7kXJoEFMZn3vnRyV9rTT5gYa7z0MUWe7lrg==";
 
         window.X_DATA = [
             {
@@ -110,7 +123,7 @@
             (window.X_DATA ? window.X_DATA.map(item => `━━━━━━━━━━━━━━━━━━\n■ ${item.brand}\n━━━━━━━━━━━━━━━━━━\n${item.content}`).join("\n\n") : "※X分析データが読み込まれていません。");
 
         const STATS_DATA = [
-          { brand: "インディード(関連含む)", tv: 213, xLikes: 152, xReposts: 2, xViews: 22067, remark: "放映回数トップだが、SNS波及は限定的" },
+          { brand: "インディード(関連含む)", tv: 213, xLikes: 152, xReposts: 2, xViews: 22067, remark: "放映回数トップだが、SNS波波は限定的" },
           { brand: "第一生命", tv: 106, xLikes: 221, xReposts: 15, xViews: 6921, remark: "露出は多いが一般層の理解・拡散に課題" },
           { brand: "ユニクロ", tv: 69, xLikes: 0, xReposts: 0, xViews: 0, remark: "分析期間内の有効Xデータなし" },
           { brand: "トヨタ", tv: 68, xLikes: 19, xReposts: 4, xViews: 3111, remark: "内容は好評だがバイラル性・拡散力が弱い" },
@@ -170,16 +183,16 @@
         };
 
         const SOURCE_CONFIG = {
-          tv: { label: "TV CMデータ", icon: <IconTV className="w-4 h-4" />, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/30", activeBg: "bg-blue-500/20" },
-          x: { label: "X分析データ", icon: <IconX className="w-4 h-4" />, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30", activeBg: "bg-purple-500/20" },
-          both: { label: "両方", icon: <IconLightning className="w-4 h-4" />, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30", activeBg: "bg-amber-500/20" },
+          tv: { label: "TV CMデータ", icon: <IconTV className="w-4 h-4" />, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-blue-300 dark:border-blue-500/30", activeBg: "bg-blue-200 dark:bg-blue-500/20" },
+          x: { label: "X分析データ", icon: <IconX className="w-4 h-4" />, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-500/10", border: "border-purple-300 dark:border-purple-500/30", activeBg: "bg-purple-200 dark:bg-purple-500/20" },
+          both: { label: "両方", icon: <IconLightning className="w-4 h-4" />, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-500/10", border: "border-amber-300 dark:border-amber-500/30", activeBg: "bg-amber-200 dark:bg-amber-500/20" },
         };
 
         // ============================================================
         // COMPONENTS
         // ============================================================
 
-        function SettingsModal({ onClose }) {
+        function SettingsModal({ onClose, theme, setTheme }) {
           const [rawApiKey, setRawApiKey] = useState('');
           const [encryptPassword, setEncryptPassword] = useState('');
           const [encryptedResult, setEncryptedResult] = useState('');
@@ -191,43 +204,63 @@
           };
 
           return (
-              <div className="fixed inset-0 bg-[#0a0e1a]/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                  <div className="bg-[#0d1526] border border-slate-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="fixed inset-0 bg-slate-900/50 dark:bg-[#0a0e1a]/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
                       <div className="flex justify-between items-center mb-6">
-                          <h2 className="text-xl font-bold text-white flex items-center gap-2"><span>⚙️</span> 管理者設定</h2>
-                          <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
+                          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><span>⚙️</span> 設定</h2>
+                          <button onClick={onClose} className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors">✕</button>
                       </div>
                       
-                      <div className="space-y-6">
+                      <div className="space-y-8">
+                          {/* テーマ設定 */}
+                          <div className="pb-6 border-b border-slate-200 dark:border-slate-800">
+                              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-300 mb-4">表示テーマ</h3>
+                              <div className="flex gap-4">
+                                  <button
+                                      onClick={() => setTheme('light')}
+                                      className={`flex-1 py-3 px-4 rounded-xl border flex items-center justify-center gap-2 transition-all ${theme === 'light' ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                  >
+                                      ☀️ ライト
+                                  </button>
+                                  <button
+                                      onClick={() => setTheme('dark')}
+                                      className={`flex-1 py-3 px-4 rounded-xl border flex items-center justify-center gap-2 transition-all ${theme === 'dark' ? 'bg-blue-900/30 border-blue-500 text-blue-400 font-bold dark:bg-blue-500/10' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                  >
+                                      🌙 ダーク
+                                  </button>
+                              </div>
+                          </div>
+
+                          {/* APIキー設定 */}
                           <div>
-                              <h3 className="text-sm font-bold text-slate-300 mb-2">APIキー暗号化ツール</h3>
-                              <p className="text-xs text-slate-400 mb-4">Gemini APIキーを安全にHTMLに埋め込むための暗号化文字列を生成します。</p>
+                              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-300 mb-2">APIキー暗号化ツール</h3>
+                              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">Gemini APIキーを安全にHTMLに埋め込むための暗号化文字列を生成します。</p>
                               
                               <div className="space-y-4">
                                   <div>
-                                      <label className="block text-xs font-semibold text-slate-400 mb-1">Gemini APIキー</label>
+                                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Gemini APIキー</label>
                                       <input
                                           type="text"
                                           value={rawApiKey}
                                           onChange={(e) => setRawApiKey(e.target.value)}
                                           placeholder="AIzaSy..."
-                                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none"
+                                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 text-sm outline-none"
                                       />
                                   </div>
                                   <div>
-                                      <label className="block text-xs font-semibold text-slate-400 mb-1">暗号化パスワード (利用者に共有するもの)</label>
+                                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">暗号化パスワード (利用者に共有するもの)</label>
                                       <input
                                           type="text"
                                           value={encryptPassword}
                                           onChange={(e) => setEncryptPassword(e.target.value)}
                                           placeholder="任意のパスワード"
-                                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none"
+                                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 text-sm outline-none"
                                       />
                                   </div>
                                   <button
                                       onClick={handleEncrypt}
                                       disabled={!rawApiKey || !encryptPassword}
-                                      className="w-full bg-purple-600 disabled:bg-slate-700 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+                                      className="w-full bg-purple-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
                                   >
                                       暗号化文字列を生成
                                   </button>
@@ -235,13 +268,13 @@
                           </div>
 
                           {encryptedResult && (
-                              <div className="bg-slate-900 p-4 rounded-xl border border-emerald-500/30">
-                                  <p className="text-xs text-emerald-400 font-bold mb-2">✅ 生成成功！</p>
-                                  <p className="text-xs text-slate-400 mb-2">以下の文字列をコピーし、ソースコード内の <code>ENCRYPTED_API_KEY</code> に貼り付けてください。</p>
+                              <div className="bg-emerald-50 dark:bg-slate-900 p-4 rounded-xl border border-emerald-300 dark:border-emerald-500/30">
+                                  <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-2">✅ 生成成功！</p>
+                                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">以下の文字列をコピーし、ソースコード内の <code>ENCRYPTED_API_KEY</code> に貼り付けてください。</p>
                                   <textarea
                                       readOnly
                                       value={encryptedResult}
-                                      className="w-full bg-[#0a0e1a] border border-slate-700 rounded-lg p-2 text-slate-300 text-xs font-mono h-20 resize-none outline-none"
+                                      className="w-full bg-white dark:bg-[#0a0e1a] border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-800 dark:text-slate-300 text-xs font-mono h-20 resize-none outline-none"
                                   />
                               </div>
                           )}
@@ -254,6 +287,7 @@
         function App() {
           const [currentView, setCurrentView] = useState('chat');
           const [sidebarOpen, setSidebarOpen] = useState(false);
+          const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
           
           const [apiKey, setApiKey] = useState('');
           const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -272,6 +306,15 @@
               }
           }, []);
 
+          useEffect(() => {
+              localStorage.setItem('theme', theme);
+              if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+          }, [theme]);
+
           const handlePasswordSubmit = () => {
               try {
                   const bytes = CryptoJS.AES.decrypt(ENCRYPTED_API_KEY, passwordInput);
@@ -289,13 +332,13 @@
           };
 
           return (
-            <div className="flex h-screen bg-[#0a0e1a] text-slate-200 font-sans overflow-hidden">
+            <div className="flex h-screen bg-[#f0f4f8] dark:bg-[#0a0e1a] text-slate-800 dark:text-slate-200 font-sans overflow-hidden transition-colors duration-300">
               {/* パスワード入力モーダル */}
               {showPasswordModal && (
-                  <div className="fixed inset-0 bg-[#0a0e1a]/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                      <div className="bg-[#0d1526] border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                          <h2 className="text-xl font-bold text-white mb-2">セキュリティ認証</h2>
-                          <p className="text-sm text-slate-400 mb-6">このアプリを利用するには、管理者から共有されたパスワードを入力してAPIキーのロックを解除してください。</p>
+                  <div className="fixed inset-0 bg-slate-900/50 dark:bg-[#0a0e1a]/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                      <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">セキュリティ認証</h2>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">このアプリを利用するには、管理者から共有されたパスワードを入力してAPIキーのロックを解除してください。</p>
                           
                           <div className="space-y-4">
                               <div>
@@ -304,10 +347,10 @@
                                       value={passwordInput}
                                       onChange={(e) => setPasswordInput(e.target.value)}
                                       placeholder="パスワードを入力..."
-                                      className="w-full bg-slate-900 border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none"
+                                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 text-sm outline-none"
                                       onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
                                   />
-                                  {passwordError && <p className="text-red-400 text-xs mt-2">{passwordError}</p>}
+                                  {passwordError && <p className="text-red-500 dark:text-red-400 text-xs mt-2">{passwordError}</p>}
                               </div>
                               <button
                                   onClick={handlePasswordSubmit}
@@ -321,28 +364,27 @@
               )}
 
               {/* 設定モーダル */}
-              {showSettingsModal && <SettingsModal onClose={() => setShowSettingsModal(false)} />}
+              {showSettingsModal && <SettingsModal onClose={() => setShowSettingsModal(false)} theme={theme} setTheme={setTheme} />}
 
               {/* Mobile sidebar overlay */}
               {sidebarOpen && (
                 <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
               )}
 
-              {/* Sidebar */}
+              {/* Sidebar (左メニューは常にダークベースを維持) */}
               <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 w-64 bg-[#0d1526] border-r border-slate-800 flex flex-col z-30 transition-transform duration-200 ease-in-out`}>
                 <div className="p-5 border-b border-slate-800 flex items-center justify-between">
                   <div className="w-full">
                     <div className="flex justify-center mb-2 p-2 w-full">
                       <img 
-                        src="./logo.png" 
-                        alt="CMトレンドAI" 
+                        src="./logo.jpg" 
+                        alt="CM Trend AI Logo" 
                         className="w-[200px] sm:w-[220px] h-auto object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
                         }}
                       />
-                      {/* 画像が読み込めない場合（またはCSS描画を意図されていた場合）のフォールバックロゴ */}
                       <div style={{ display: 'none' }} className="items-center gap-2 w-full">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1295ef" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
@@ -366,13 +408,13 @@
                     onClick={() => { setCurrentView('chat'); setSidebarOpen(false); }} 
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${currentView === 'chat' ? 'bg-blue-600/20 text-blue-400 shadow-sm border border-blue-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'}`}
                   >
-                    <IconChat className="w-5 h-5" /> <span className="font-medium text-sm">AI アナリストチャット</span>
+                    <IconChat className="w-5 h-5" /> <span className="font-medium text-sm">新規チャット</span>
                   </button>
                   <button 
                     onClick={() => { setCurrentView('stats'); setSidebarOpen(false); }} 
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${currentView === 'stats' ? 'bg-purple-600/20 text-purple-400 shadow-sm border border-purple-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'}`}
                   >
-                    <IconChart className="w-5 h-5" /> <span className="font-medium text-sm">統計ダッシュボード</span>
+                    <IconChart className="w-5 h-5" /> <span className="font-medium text-sm">統計分析</span>
                   </button>
                 </nav>
                 
@@ -381,27 +423,26 @@
                     onClick={() => { setShowSettingsModal(true); setSidebarOpen(false); }}
                     className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 text-slate-300 transition-colors"
                   >
-                    <span className="text-lg">⚙️</span> 管理者設定
+                    <span className="text-lg">⚙️</span> 設定
                   </button>
                   <div className="text-center">対象期間: 2026/3/20 - 3/26</div>
                 </div>
               </div>
 
               {/* Main Content */}
-              <div className="flex-1 flex flex-col h-screen min-w-0 bg-[#0a0e1a]">
-                {/* Mobile Header */}
+              <div className="flex-1 flex flex-col h-screen min-w-0 bg-[#f0f4f8] dark:bg-[#0a0e1a] transition-colors duration-300">
+                {/* Mobile Header (常にダーク) */}
                 <div className="lg:hidden flex items-center justify-between p-3 border-b border-slate-800 bg-[#0d1526]">
                   <div className="flex items-center p-1.5 rounded-lg" style={{ backgroundColor: '#0d1526' }}>
                     <img 
-                      src="./logo.png" 
-                      alt="CMトレンドAI" 
+                      src="./logo.jpg" 
+                      alt="CM Trend AI Logo" 
                       className="h-8 w-auto object-contain"
                       onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';
                       }}
                     />
-                    {/* 画像が読み込めない場合（またはCSS描画を意図されていた場合）のフォールバックロゴ */}
                     <div style={{ display: 'none' }} className="items-center gap-2">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1295ef" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
@@ -435,7 +476,6 @@
             bottomRef.current?.scrollIntoView({ behavior: "smooth" });
           }, [messages, loading]);
 
-          // Exponential backoff for Gemini API
           const fetchWithRetry = async (url, options, maxRetries = 5) => {
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let i = 0; i < maxRetries; i++) {
@@ -462,7 +502,7 @@
 
             try {
               if (!apiKey) {
-                setMessages([...newMessages, { role: "assistant", content: "⚠️ APIキーが設定されていません。管理者設定(⚙️)から暗号化文字列を生成し、ソースコードの ENCRYPTED_API_KEY に設定してください。" }]);
+                setMessages([...newMessages, { role: "assistant", content: "⚠️ APIキーが設定されていません。設定(⚙️)から暗号化文字列を生成し、ソースコードの ENCRYPTED_API_KEY に設定してください。" }]);
                 setLoading(false);
                 return;
               }
@@ -495,7 +535,6 @@
               }]);
             } finally {
               setLoading(false);
-              // フォーカスを戻す（デスクトップのみ）
               if (window.innerWidth >= 1024) {
                 setTimeout(() => inputRef.current?.focus(), 100);
               }
@@ -513,26 +552,12 @@
 
           return (
             <div className="flex flex-col h-full w-full relative">
-              {/* Header controls */}
-              <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-[#0a0e1a] to-transparent pointer-events-none">
-                <div className="pointer-events-auto bg-[#0d1526]/80 backdrop-blur-md rounded-xl p-1 border border-slate-700/50 flex shadow-lg">
-                  {Object.entries(SOURCE_CONFIG).map(([key, c]) => (
-                    <button
-                      key={key}
-                      onClick={() => setSource(key)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                        source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-500/30` : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                      }`}
-                    >
-                      {c.icon} <span className="hidden sm:inline">{c.label}</span>
-                    </button>
-                  ))}
-                </div>
-                
+              {/* Header controls (右上の会話をクリアボタンのみ残す) */}
+              <div className="absolute top-0 left-0 right-0 p-4 flex justify-end items-center z-10 bg-gradient-to-b from-[#f0f4f8] dark:from-[#0a0e1a] to-transparent pointer-events-none transition-colors">
                 {messages.length > 0 && (
                   <button
                     onClick={() => setMessages([])}
-                    className="pointer-events-auto px-3 py-1.5 text-xs font-medium text-slate-400 bg-[#0d1526]/80 backdrop-blur-md border border-slate-700/50 rounded-lg hover:text-white hover:bg-slate-800 transition-colors"
+                    className="pointer-events-auto px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-white/80 dark:bg-[#0d1526]/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-lg hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm dark:shadow-none"
                   >
                     会話をクリア
                   </button>
@@ -540,22 +565,17 @@
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto pt-20 px-4 sm:px-6 pb-4 scroll-smooth">
+              <div className="flex-1 overflow-y-auto pt-16 px-4 sm:px-6 pb-4 scroll-smooth">
                 <div className="max-w-3xl mx-auto">
                   {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center mt-8">
-                      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${cfg.bg} border ${cfg.border} mb-8 animate-fade-in`}>
-                        <div className={`w-2 h-2 rounded-full bg-${cfg.color.split('-')[1]}-400 animate-pulse`} />
-                        <span className={`text-xs font-bold tracking-widest uppercase ${cfg.color}`}>
-                          {cfg.label} 接続中
-                        </span>
-                      </div>
+                    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center mt-4">
                       
-                      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent mb-4 tracking-tight">
-                        分析を始めましょう
+                      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent mb-4 tracking-tight">
+                        TV-CMデータ × AI分析
                       </h2>
-                      <p className="text-slate-400 text-sm max-w-md mb-10 leading-relaxed">
-                        エム・データが提供する最新のテレビCMメタデータとXの反響データを組み合わせ、マーケティングインサイトを抽出します。
+                      <p className="text-slate-600 dark:text-slate-400 text-sm max-w-md mb-10 leading-relaxed transition-colors">
+                        エム・データが提供するTV-CMデータやXの分析データを元に、<br />
+                        TV-CMをあらゆる角度から調査・分析します。
                       </p>
 
                       <div className="w-full max-w-2xl text-left">
@@ -565,7 +585,7 @@
                             <button
                               key={i}
                               onClick={() => sendMessage(s)}
-                              className="text-left px-4 py-3 rounded-xl border border-slate-700/50 bg-[#0d1526]/50 hover:bg-slate-800/80 hover:border-slate-600 text-slate-300 text-sm transition-all shadow-sm flex items-start gap-3 group"
+                              className="text-left px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-white dark:bg-[#0d1526]/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 text-sm transition-all shadow-sm flex items-start gap-3 group"
                             >
                               <span className={`mt-0.5 ${cfg.color} opacity-70 group-hover:opacity-100 transition-opacity`}><IconLightning className="w-4 h-4" /></span>
                               <span>{s}</span>
@@ -581,10 +601,10 @@
                       ))}
                       {loading && (
                         <div className="flex items-start gap-4 animate-fade-in">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-800 border border-slate-700`}>
-                            <div className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></div>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors`}>
+                            <div className="w-4 h-4 rounded-full border-2 border-slate-500 dark:border-slate-400 border-t-transparent animate-spin"></div>
                           </div>
-                          <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[#0d1526] border border-slate-800 text-slate-400 text-sm shadow-sm flex items-center gap-2">
+                          <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-sm shadow-sm flex items-center gap-2 transition-colors">
                             データを分析しています<span className="animate-pulse">...</span>
                           </div>
                         </div>
@@ -596,16 +616,38 @@
               </div>
 
               {/* Input Area */}
-              <div className="p-4 sm:p-6 bg-gradient-to-t from-[#0a0e1a] via-[#0a0e1a] to-transparent">
+              <div className="p-4 sm:p-6 bg-gradient-to-t from-[#f0f4f8] via-[#f0f4f8] dark:from-[#0a0e1a] dark:via-[#0a0e1a] to-transparent transition-colors">
                 <div className="max-w-3xl mx-auto relative">
-                  <div className="relative flex items-end shadow-xl rounded-2xl bg-[#0d1526] border border-slate-700 focus-within:border-slate-500 focus-within:ring-1 focus-within:ring-slate-500 transition-all">
+                  
+                  {/* 情報ソース選択 (検索窓の左上に移動) */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 ml-2">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <IconDatabase className="w-3.5 h-3.5" /> 情報ソースを選択:
+                    </span>
+                    <div className="flex bg-white/80 dark:bg-[#0d1526]/80 backdrop-blur-md rounded-xl p-1 border border-slate-200 dark:border-slate-700/50 shadow-sm dark:shadow-none transition-colors w-fit">
+                      {Object.entries(SOURCE_CONFIG).map(([key, c]) => (
+                        <button
+                          key={key}
+                          onClick={() => setSource(key)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                            source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-400/30 dark:ring-${c.color.split('-')[1]}-500/30` : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          {c.icon} <span>{c.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 検索窓のコンテナ（ライトテーマ時は白） */}
+                  <div className="relative flex items-end shadow-xl rounded-2xl bg-[#ffffff] dark:bg-[#0d1526] border border-slate-300 dark:border-slate-700 focus-within:border-blue-500 dark:focus-within:border-slate-500 focus-within:ring-1 focus-within:ring-blue-500 dark:focus-within:ring-slate-500 transition-all">
                     <textarea
                       ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="CMトレンドやSNS反響について質問する..."
-                      className="flex-1 max-h-40 min-h-[56px] py-4 pl-5 pr-14 bg-transparent text-slate-100 text-sm resize-none outline-none leading-relaxed placeholder:text-slate-500"
+                      className="flex-1 max-h-40 min-h-[56px] py-4 pl-5 pr-14 bg-transparent text-slate-900 dark:text-slate-100 text-sm resize-none outline-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       rows={1}
                     />
                     <button
@@ -613,7 +655,7 @@
                       disabled={loading || !input.trim()}
                       className={`absolute right-2 bottom-2 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                         loading || !input.trim() 
-                          ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed" 
                           : "bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95"
                       }`}
                     >
@@ -636,13 +678,13 @@
             return text.split("\n").map((line, i) => {
               if (line.match(/^#{2,3}\s+(.*)/)) {
                 const text = line.replace(/^#{2,3}\s+/, "");
-                return <h3 key={i} className="text-lg font-bold text-white mt-5 mb-2 border-b border-slate-700/50 pb-1">{text}</h3>;
+                return <h3 key={i} className="text-lg font-bold text-slate-800 dark:text-white mt-5 mb-2 border-b border-slate-200 dark:border-slate-700/50 pb-1">{text}</h3>;
               }
               if (line.match(/^[-*]\s+(.*)/)) {
                 const text = line.replace(/^[-*]\s+/, "");
                 return (
                   <div key={i} className="flex gap-2 mb-1.5 ml-1">
-                    <span className={`text-${sourceColor}-400 mt-1 flex-shrink-0`}><IconLightning className="w-3.5 h-3.5" /></span>
+                    <span className={`text-${sourceColor}-500 dark:text-${sourceColor}-400 mt-1 flex-shrink-0`}><IconLightning className="w-3.5 h-3.5" /></span>
                     <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
                   </div>
                 );
@@ -652,7 +694,7 @@
                 const text = line.replace(/^\d+\.\s+/, "");
                 return (
                   <div key={i} className="flex gap-2.5 mb-1.5 ml-1 items-start">
-                    <span className={`text-[10px] font-bold bg-${sourceColor}-500/20 text-${sourceColor}-300 px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0`}>{num}</span>
+                    <span className={`text-[10px] font-bold bg-${sourceColor}-100 dark:bg-${sourceColor}-500/20 text-${sourceColor}-700 dark:text-${sourceColor}-300 px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0`}>{num}</span>
                     <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
                   </div>
                 );
@@ -664,25 +706,25 @@
           };
 
           const formatBold = (text) => {
-            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-100 font-bold">$1</strong>');
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 dark:text-slate-100 font-bold">$1</strong>');
           };
 
           return (
             <div className={`flex items-start gap-3 sm:gap-4 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-colors ${
                 isUser 
-                  ? "bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600" 
-                  : `bg-gradient-to-br from-${sourceColor}-600/20 to-${sourceColor}-500/10 border border-${sourceColor}-500/30`
+                  ? "bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 border border-slate-300 dark:border-slate-600" 
+                  : `bg-gradient-to-br from-${sourceColor}-100 to-${sourceColor}-50 dark:from-${sourceColor}-600/20 dark:to-${sourceColor}-500/10 border border-${sourceColor}-300 dark:border-${sourceColor}-500/30`
               }`}>
-                {isUser ? <IconUser className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" /> : <div className={`font-bold text-xs sm:text-sm text-${sourceColor}-400`}>AI</div>}
+                {isUser ? <IconUser className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" /> : <div className={`font-bold text-xs sm:text-sm text-${sourceColor}-600 dark:text-${sourceColor}-400`}>AI</div>}
               </div>
               
-              <div className={`max-w-[85%] sm:max-w-[75%] px-4 sm:px-5 py-3 sm:py-4 text-[13px] sm:text-[14px] shadow-sm ${
+              <div className={`max-w-[85%] sm:max-w-[75%] px-4 sm:px-5 py-3 sm:py-4 text-[13px] sm:text-[14px] shadow-sm transition-colors ${
                 isUser 
                   ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm" 
-                  : "bg-[#0d1526] border border-slate-700/60 text-slate-300 rounded-2xl rounded-tl-sm"
+                  : "bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-700/60 text-slate-800 dark:text-slate-300 rounded-2xl rounded-tl-sm"
               }`}>
-                {isUser ? msg.content : <div className="text-slate-300 space-y-0">{renderContent(msg.content)}</div>}
+                {isUser ? msg.content : <div className="text-slate-800 dark:text-slate-300 space-y-0">{renderContent(msg.content)}</div>}
               </div>
             </div>
           );
@@ -700,7 +742,6 @@
           const [comparisonText, setComparisonText] = useState('');
           const [isLoading, setIsLoading] = useState(false);
 
-          // Gemini API呼び出し用のバックオフ関数
           const fetchWithRetry = async (url, options, maxRetries = 5) => {
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let i = 0; i < maxRetries; i++) {
@@ -747,12 +788,11 @@
             setHasSearched(true);
             setComparisonText('');
 
-            // 複数キーワードの場合はGeminiで比較結果を生成
             if (active.length > 1) {
               setIsLoading(true);
               try {
                 if (!apiKey) {
-                  setComparisonText("⚠️ APIキーが設定されていません。管理者設定(⚙️)から設定してください。");
+                  setComparisonText("⚠️ APIキーが設定されていません。設定(⚙️)から設定してください。");
                   setIsLoading(false);
                   return;
                 }
@@ -783,7 +823,7 @@
           };
 
           const formatText = (text) => {
-            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 dark:text-white font-bold">$1</strong>');
             formatted = formatted.replace(/\n/g, '<br/>');
             return formatted;
           };
@@ -795,7 +835,7 @@
                   key={key}
                   onClick={() => setSource(key)}
                   className={`flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
-                    source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-500/30` : 'text-slate-400 bg-slate-800/50 hover:text-slate-200 hover:bg-slate-800'
+                    source === key ? `${c.bg} ${c.color} shadow-sm ring-1 ring-inset ring-${c.color.split('-')[1]}-400/30 dark:ring-${c.color.split('-')[1]}-500/30` : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/50 dark:border-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
                   {c.icon} <span>{c.label}</span>
@@ -805,53 +845,54 @@
           );
 
           const renderSearchForm = (isCompact = false) => (
-            <div className={`bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-lg w-full ${!isCompact ? 'max-w-2xl mx-auto' : 'mb-6'}`}>
+            <div className={`bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg w-full transition-colors ${!isCompact ? 'max-w-2xl mx-auto' : 'mb-6'}`}>
               {!isCompact && (
                 <div className="mb-6 text-center">
-                  <div className="inline-flex p-3 rounded-full bg-blue-500/10 mb-3">
-                    <IconChart className="w-8 h-8 text-blue-400" />
+                  <div className="inline-flex p-3 rounded-full bg-blue-100 dark:bg-blue-500/10 mb-3">
+                    <IconChart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">統計ダッシュボード検索</h2>
-                  <p className="text-slate-400 text-sm mt-2">キーワード、期間、データソースを指定して分析を実行します</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">CM統計分析</h2>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">キーワード、期間、データソースを指定して分析を実行します</p>
                 </div>
               )}
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">検索キーワード (最大3つ)</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">検索キーワード (最大3つ)</label>
                   <div className="space-y-3">
                     {queries.map((q, i) => (
                       <div key={i} className="flex items-center gap-2">
+                        {/* 検索窓（#ffffff / ダーク時は元通り） */}
                         <input
                           type="text"
                           value={q}
                           onChange={(e) => handleUpdateQuery(i, e.target.value)}
                           placeholder="例: トヨタ、インディード"
-                          className="flex-1 bg-slate-900 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-2.5 text-slate-200 text-sm outline-none transition-all"
+                          className="flex-1 bg-[#ffffff] dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 text-sm outline-none transition-all"
                         />
                         {queries.length > 1 && (
-                          <button onClick={() => handleRemoveQuery(i)} className="p-2 text-slate-500 hover:text-red-400 transition-colors">✕</button>
+                          <button onClick={() => handleRemoveQuery(i)} className="p-2 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors">✕</button>
                         )}
                       </div>
                     ))}
                     {queries.length < 3 && (
-                      <button onClick={handleAddQuery} className="text-sm text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">+ キーワードを追加して比較</button>
+                      <button onClick={handleAddQuery} className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium flex items-center gap-1">+ キーワードを追加して比較</button>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-5">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">検索期間</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">検索期間</label>
                     <div className="flex items-center gap-2">
-                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none [color-scheme:dark]" />
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 text-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
                       <span className="text-slate-500">〜</span>
-                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-sm outline-none [color-scheme:dark]" />
+                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 text-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">データソース</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">データソース</label>
                     {renderSourceSelector()}
                   </div>
                 </div>
@@ -861,11 +902,11 @@
                     onClick={handleSearch}
                     disabled={isLoading}
                     className={`w-full ${isCompact ? 'md:w-auto px-8' : ''} py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
-                      isLoading ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95'
+                      isLoading ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95'
                     }`}
                   >
                     {isLoading ? (
-                      <><div className="w-4 h-4 rounded-full border-2 border-slate-500 border-t-transparent animate-spin"></div> 検索中...</>
+                      <><div className="w-4 h-4 rounded-full border-2 border-slate-400 dark:border-slate-500 border-t-transparent animate-spin"></div> 検索中...</>
                     ) : (
                       <><IconChart className="w-5 h-5" /> 分析を実行</>
                     )}
@@ -877,7 +918,7 @@
 
           if (!hasSearched) {
             return (
-              <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#0a0e1a] flex flex-col items-center justify-center">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex flex-col items-center justify-center transition-colors">
                 {renderSearchForm(false)}
               </div>
             );
@@ -889,57 +930,57 @@
           const totalViews = filteredData.reduce((sum, d) => sum + d.xViews, 0);
 
           return (
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#0a0e1a]">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 transition-colors">
               <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
                 
                 {renderSearchForm(true)}
 
                 {/* 比較結果 (Gemini 生成) */}
                 {submittedQueries.length > 1 && (
-                   <div className="bg-[#0d1526] border border-blue-500/30 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+                   <div className="bg-blue-50 dark:bg-[#0d1526] border border-blue-200 dark:border-blue-500/30 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden transition-colors">
                      <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-                     <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                       <IconLightning className="w-5 h-5 text-blue-400" /> AI比較分析インサイト
+                     <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                       <IconLightning className="w-5 h-5 text-blue-500 dark:text-blue-400" /> AI比較分析インサイト
                      </h3>
                      {isLoading ? (
-                       <div className="text-slate-400 animate-pulse text-sm">データに基づき比較結果を生成中...</div>
+                       <div className="text-slate-500 dark:text-slate-400 animate-pulse text-sm">データに基づき比較結果を生成中...</div>
                      ) : (
-                       <div className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(comparisonText) }} />
+                       <div className="text-slate-800 dark:text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(comparisonText) }} />
                      )}
                    </div>
                 )}
 
                 {/* Overview KPIs */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                  <KpiCard title="総放映回数" value={totalTv} unit="回" icon={<IconTV className="w-5 h-5 text-blue-400" />} />
-                  <KpiCard title="X 総表示回数" value={totalViews >= 1000 ? (totalViews/1000).toFixed(1) : totalViews} unit={totalViews >= 1000 ? "K回" : "回"} icon={<IconX className="w-5 h-5 text-purple-400" />} />
-                  <KpiCard title="分析対象ブランド" value={filteredData.length} unit="社" icon={<IconDatabase className="w-5 h-5 text-emerald-400" />} />
-                  <KpiCard title="期間" value="7" unit="日間" icon={<IconChart className="w-5 h-5 text-amber-400" />} />
+                  <KpiCard title="総放映回数" value={totalTv} unit="回" icon={<IconTV className="w-5 h-5 text-blue-500 dark:text-blue-400" />} />
+                  <KpiCard title="X 総表示回数" value={totalViews >= 1000 ? (totalViews/1000).toFixed(1) : totalViews} unit={totalViews >= 1000 ? "K回" : "回"} icon={<IconX className="w-5 h-5 text-purple-500 dark:text-purple-400" />} />
+                  <KpiCard title="分析対象ブランド" value={filteredData.length} unit="社" icon={<IconDatabase className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />} />
+                  <KpiCard title="期間" value="7" unit="日間" icon={<IconChart className="w-5 h-5 text-amber-500 dark:text-amber-400" />} />
                 </div>
                 
                 {/* Charts Grid */}
                 <div className={`grid grid-cols-1 ${source === 'both' ? 'lg:grid-cols-2' : ''} gap-4 sm:gap-6`}>
                   {/* TV Chart */}
                   {(source === 'tv' || source === 'both') && (
-                  <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+                  <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm transition-colors">
                     <div className="flex items-center gap-2 mb-6">
-                      <div className="p-2 rounded-lg bg-blue-500/10"><IconTV className="w-5 h-5 text-blue-400" /></div>
-                      <h3 className="text-lg font-bold text-slate-100">TVCM 放映回数ランキング</h3>
+                      <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-500/10"><IconTV className="w-5 h-5 text-blue-600 dark:text-blue-400" /></div>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">TVCM 放映回数ランキング</h3>
                     </div>
                     {filteredData.length > 0 ? (
                     <div className="space-y-5">
                       {[...filteredData].sort((a,b)=>b.tv - a.tv).map(d => (
                         <div key={d.brand} className="group">
                           <div className="flex justify-between text-sm mb-1.5">
-                            <span className="font-medium text-slate-300 group-hover:text-white transition-colors">{d.brand}</span>
-                            <span className="text-blue-400 font-bold">{d.tv}回</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{d.brand}</span>
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">{d.tv}回</span>
                           </div>
-                          <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
+                          <div className="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-3 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full relative transition-all duration-500" 
+                              className="bg-gradient-to-r from-blue-500 to-blue-400 dark:from-blue-600 dark:to-blue-400 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${maxTv > 0 ? (d.tv/maxTv)*100 : 0}%`}}
                             >
-                              <div className="absolute inset-0 bg-white/20 w-full animate-shimmer"></div>
+                              <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer"></div>
                             </div>
                           </div>
                         </div>
@@ -953,25 +994,25 @@
 
                   {/* X Chart */}
                   {(source === 'x' || source === 'both') && (
-                  <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+                  <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm transition-colors">
                     <div className="flex items-center gap-2 mb-6">
-                      <div className="p-2 rounded-lg bg-purple-500/10"><IconX className="w-5 h-5 text-purple-400" /></div>
-                      <h3 className="text-lg font-bold text-slate-100">X(Twitter) 表示回数ランキング</h3>
+                      <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10"><IconX className="w-5 h-5 text-purple-600 dark:text-purple-400" /></div>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">X(Twitter) 表示回数ランキング</h3>
                     </div>
                     {filteredData.length > 0 ? (
                     <div className="space-y-5">
                       {[...filteredData].sort((a,b)=>b.xViews - a.xViews).map(d => (
                         <div key={d.brand} className="group">
                           <div className="flex justify-between text-sm mb-1.5">
-                            <span className="font-medium text-slate-300 group-hover:text-white transition-colors">{d.brand}</span>
-                            <span className="text-purple-400 font-bold">{d.xViews === 0 ? 'データなし' : `${d.xViews.toLocaleString()}回`}</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{d.brand}</span>
+                            <span className="text-purple-600 dark:text-purple-400 font-bold">{d.xViews === 0 ? 'データなし' : `${d.xViews.toLocaleString()}回`}</span>
                           </div>
-                          <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
+                          <div className="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-3 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-purple-600 to-purple-400 h-full rounded-full relative transition-all duration-500" 
+                              className="bg-gradient-to-r from-purple-500 to-purple-400 dark:from-purple-600 dark:to-purple-400 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${d.xViews === 0 ? 0 : Math.max((d.xViews/maxXViews)*100, 2)}%`}}
                             >
-                               {d.xViews > 0 && <div className="absolute inset-0 bg-white/20 w-full animate-shimmer" style={{animationDelay: '0.5s'}}></div>}
+                               {d.xViews > 0 && <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer" style={{animationDelay: '0.5s'}}></div>}
                             </div>
                           </div>
                         </div>
@@ -985,15 +1026,15 @@
                 </div>
 
                 {/* Data Table */}
-                <div className="bg-[#0d1526] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                  <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                      <IconChart className="w-5 h-5 text-emerald-400" /> 総合クロス分析サマリー
+                <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-colors">
+                  <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                      <IconChart className="w-5 h-5 text-emerald-500 dark:text-emerald-400" /> 総合クロス分析サマリー
                     </h3>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-slate-800/40 text-slate-400 text-xs uppercase tracking-wider">
+                      <thead className="bg-slate-50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                         <tr>
                           <th className="px-6 py-4 font-semibold">ブランド</th>
                           <th className="px-6 py-4 font-semibold text-right">TV放映</th>
@@ -1002,14 +1043,14 @@
                           <th className="px-6 py-4 font-semibold w-full">分析サマリー</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                         {filteredData.length > 0 ? filteredData.map(d => (
-                          <tr key={d.brand} className="hover:bg-slate-800/30 transition-colors">
-                            <td className="px-6 py-4 font-bold text-white">{d.brand}</td>
-                            <td className="px-6 py-4 text-right font-medium text-blue-400">{d.tv}</td>
-                            <td className="px-6 py-4 text-right font-medium text-purple-400">{d.xLikes === 0 && d.brand === 'ユニクロ' ? '-' : d.xLikes.toLocaleString()}</td>
-                            <td className="px-6 py-4 text-right font-medium text-purple-400">{d.xViews === 0 && d.brand === 'ユニクロ' ? '-' : d.xViews.toLocaleString()}</td>
-                            <td className="px-6 py-4 text-slate-300 whitespace-normal min-w-[200px]">{d.remark}</td>
+                          <tr key={d.brand} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{d.brand}</td>
+                            <td className="px-6 py-4 text-right font-medium text-blue-600 dark:text-blue-400">{d.tv}</td>
+                            <td className="px-6 py-4 text-right font-medium text-purple-600 dark:text-purple-400">{d.xLikes === 0 && d.brand === 'ユニクロ' ? '-' : d.xLikes.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-right font-medium text-purple-600 dark:text-purple-400">{d.xViews === 0 && d.brand === 'ユニクロ' ? '-' : d.xViews.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300 whitespace-normal min-w-[200px]">{d.remark}</td>
                           </tr>
                         )) : (
                           <tr>
@@ -1029,14 +1070,14 @@
 
         function KpiCard({ title, value, unit, icon }) {
           return (
-            <div className="bg-[#0d1526] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
               <div className="flex justify-between items-start mb-3">
-                <h4 className="text-xs sm:text-sm font-medium text-slate-400">{title}</h4>
+                <h4 className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">{title}</h4>
                 {icon}
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">{value}</span>
-                <span className="text-xs font-medium text-slate-500">{unit}</span>
+                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-500">{unit}</span>
               </div>
             </div>
           );
