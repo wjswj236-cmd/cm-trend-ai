@@ -126,7 +126,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX19MDWItXKX80y6SW6d5w+N9rv9QLOXXPWVJrgZ0QqNnfN4Kvv3DXLQb4yh29YdnETa1pxMTPO9igg==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+MNzsx/xquKnGh8VTumN2QtfT8oKU5g3lQLr/y90fQrspHV3hAZeJM3oNbL49E/8jMhOG0hanpIw==";
 
         window.X_DATA = [
             {
@@ -725,7 +725,7 @@
                       className={`absolute right-2 bottom-2 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                         loading || !input.trim() 
                           ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed" 
-                          : "bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95"
+                          : "bg-[#1e7de8] text-white hover:opacity-90 hover:shadow-lg hover:shadow-[#1e7de8]/20 active:scale-95"
                       }`}
                     >
                       <IconSend className="w-5 h-5" />
@@ -971,7 +971,7 @@
                     onClick={handleSearch}
                     disabled={isLoading}
                     className={`w-full ${isCompact ? 'md:w-auto px-8' : ''} py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
-                      isLoading ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95'
+                      isLoading ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'bg-[#1e7de8] text-white hover:opacity-90 hover:shadow-lg hover:shadow-[#1e7de8]/20 active:scale-95'
                     }`}
                   >
                     {isLoading ? (
@@ -1064,7 +1064,6 @@
                               className="bg-blue-500 dark:bg-blue-600 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${maxTv > 0 ? (d.tv/maxTv)*100 : 0}%`}}
                             >
-                              <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer"></div>
                             </div>
                           </div>
                         </div>
@@ -1096,7 +1095,6 @@
                               className="bg-purple-500 dark:bg-purple-600 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${d.xViews === 0 ? 0 : Math.max((d.xViews/maxXViews)*100, 2)}%`}}
                             >
-                               {d.xViews > 0 && <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer" style={{animationDelay: '0.5s'}}></div>}
                             </div>
                           </div>
                         </div>
