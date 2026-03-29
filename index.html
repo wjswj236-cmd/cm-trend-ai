@@ -71,7 +71,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+2qh8UQix8O5HYPV4FrxDGNZ+x8DZXXp6d7Kpke7eCs0LT/Eo1zakCRiw3++TSId+eRYXyR5CIVw==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+vYRG0KGAudXh3JQR7Fm72LDpooF2fjJi9kDaRjfl6RD7dRemq0yPxzgWV+5mCg/tVlg2C9/GywQ==";
 
         window.X_DATA = [
             {
@@ -507,7 +507,7 @@
                 return;
               }
 
-              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+              const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
 
               const payload = {
                 contents: newMessages.map(m => ({
@@ -796,7 +796,7 @@
                   setIsLoading(false);
                   return;
                 }
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
                 
                 const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。`;
 
