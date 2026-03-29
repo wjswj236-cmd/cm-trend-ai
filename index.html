@@ -49,6 +49,61 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(71, 85, 105, 1);
         }
+        
+        /* 統計分析：Gemini生成HTML（インサイト）用スタイル */
+        .gemini-content h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.25rem;
+        }
+        .dark .gemini-content h3 {
+            color: #f8fafc;
+            border-color: #334155;
+        }
+        .gemini-content p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+        .gemini-content strong {
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .dark .gemini-content strong {
+            color: #f8fafc;
+        }
+        .gemini-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+        .gemini-content th, .gemini-content td {
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem;
+        }
+        .dark .gemini-content th, .dark .gemini-content td {
+            border-color: #334155;
+        }
+        .gemini-content th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+        .dark .gemini-content th {
+            background-color: #1e293b;
+        }
+        .gemini-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .gemini-content li {
+            margin-bottom: 0.25rem;
+        }
     </style>
     <script>
         // 初期読み込み時のテーマ適用（チラつき防止）
@@ -71,7 +126,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+vYRG0KGAudXh3JQR7Fm72LDpooF2fjJi9kDaRjfl6RD7dRemq0yPxzgWV+5mCg/tVlg2C9/GywQ==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX19MDWItXKX80y6SW6d5w+N9rv9QLOXXPWVJrgZ0QqNnfN4Kvv3DXLQb4yh29YdnETa1pxMTPO9igg==";
 
         window.X_DATA = [
             {
@@ -472,8 +527,20 @@
           const bottomRef = useRef(null);
           const inputRef = useRef(null);
 
+          // スクロール制御
           useEffect(() => {
-            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+            if (loading) {
+              // ローディング中（ユーザー送信直後）は一番下へ
+              bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+            } else if (messages.length > 0 && messages[messages.length - 1].role === "assistant") {
+              // AIの回答が完了したタイミングで、最新のメッセージの先頭へスクロール
+              const lastEl = document.getElementById(`message-${messages.length - 1}`);
+              if (lastEl) {
+                lastEl.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            } else {
+              bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+            }
           }, [messages, loading]);
 
           const fetchWithRetry = async (url, options, maxRetries = 5) => {
@@ -597,7 +664,9 @@
                   ) : (
                     <div className="space-y-6">
                       {messages.map((msg, i) => (
-                        <MessageBubble key={i} msg={msg} sourceColor={cfg.color.split('-')[1]} />
+                        <div key={i} id={`message-${i}`} className="scroll-mt-24">
+                          <MessageBubble msg={msg} sourceColor={cfg.color.split('-')[1]} />
+                        </div>
                       ))}
                       {loading && (
                         <div className="flex items-start gap-4 animate-fade-in">
@@ -676,9 +745,9 @@
 
           const renderContent = (text) => {
             return text.split("\n").map((line, i) => {
-              if (line.match(/^#{2,3}\s+(.*)/)) {
-                const text = line.replace(/^#{2,3}\s+/, "");
-                return <h3 key={i} className="text-lg font-bold text-slate-800 dark:text-white mt-5 mb-2 border-b border-slate-200 dark:border-slate-700/50 pb-1">{text}</h3>;
+              if (line.match(/^#+\s+(.*)/)) {
+                const text = line.replace(/^#+\s+/, "");
+                return <h3 key={i} className="text-xl font-extrabold text-slate-900 dark:text-white mt-6 mb-3 border-b border-slate-200 dark:border-slate-700/50 pb-2">{text}</h3>;
               }
               if (line.match(/^[-*]\s+(.*)/)) {
                 const text = line.replace(/^[-*]\s+/, "");
@@ -798,7 +867,7 @@
                 }
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
                 
-                const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。`;
+                const prompt = `以下のブランドについて、提供されているデータソースを基に比較分析を行ってください。\n\n比較対象: ${active.join(', ')}\n対象期間: ${startDate} 〜 ${endDate}\n\n結論ファーストで、各対象の違い、優位性、課題を専門的なアナリストの視点で簡潔にまとめてください。\n\n【出力形式の厳格なルール】\n必ず以下のHTML形式で出力してください。Markdown（#, *, |など）は一切使用しないでください。\n1. 見出しは「##」などを使わず、<h3>タグを使用してください。\n2. 「各ブランドの比較分析」の詳細な結果は、箇条書きではなく、必ず <table> <thead> <tbody> <tr> <th> <td> タグを用いた表形式で出力してください。\n3. 本文の段落には <p> タグを使用してください。\n4. 強調したい箇所は <strong> タグを使用してください。`;
 
                 const payload = {
                   contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -822,10 +891,10 @@
             }
           };
 
-          const formatText = (text) => {
-            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 dark:text-white font-bold">$1</strong>');
-            formatted = formatted.replace(/\n/g, '<br/>');
-            return formatted;
+          const renderHTML = (htmlString) => {
+            // Geminiが出力したコードブロックマーカー（```html など）を除去
+            let cleanHtml = htmlString.replace(/```html/g, '').replace(/```/g, '');
+            return { __html: cleanHtml };
           };
 
           const renderSourceSelector = () => (
@@ -929,6 +998,21 @@
           const totalTv = filteredData.reduce((sum, d) => sum + d.tv, 0);
           const totalViews = filteredData.reduce((sum, d) => sum + d.xViews, 0);
 
+          const formatViews = (views) => views >= 1000 ? (views/1000).toFixed(1) : views;
+          const getViewsUnit = (views) => views >= 1000 ? "K回" : "回";
+
+          const tvItems = filteredData.length > 1 ? filteredData.map(d => ({
+            label: d.brand,
+            value: d.tv,
+            unit: "回"
+          })) : null;
+
+          const viewItems = filteredData.length > 1 ? filteredData.map(d => ({
+            label: d.brand,
+            value: formatViews(d.xViews),
+            unit: getViewsUnit(d.xViews)
+          })) : null;
+
           return (
             <div className="flex-1 overflow-y-auto p-4 sm:p-8 transition-colors">
               <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
@@ -945,15 +1029,15 @@
                      {isLoading ? (
                        <div className="text-slate-500 dark:text-slate-400 animate-pulse text-sm">データに基づき比較結果を生成中...</div>
                      ) : (
-                       <div className="text-slate-800 dark:text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(comparisonText) }} />
+                       <div className="text-slate-800 dark:text-slate-300 text-sm leading-relaxed gemini-content" dangerouslySetInnerHTML={renderHTML(comparisonText)} />
                      )}
                    </div>
                 )}
 
                 {/* Overview KPIs */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                  <KpiCard title="総放映回数" value={totalTv} unit="回" icon={<IconTV className="w-5 h-5 text-blue-500 dark:text-blue-400" />} />
-                  <KpiCard title="X 総表示回数" value={totalViews >= 1000 ? (totalViews/1000).toFixed(1) : totalViews} unit={totalViews >= 1000 ? "K回" : "回"} icon={<IconX className="w-5 h-5 text-purple-500 dark:text-purple-400" />} />
+                  <KpiCard title={filteredData.length > 1 ? "放映回数" : "総放映回数"} value={totalTv} unit="回" items={tvItems} icon={<IconTV className="w-5 h-5 text-blue-500 dark:text-blue-400" />} />
+                  <KpiCard title={filteredData.length > 1 ? "X 表示回数" : "X 総表示回数"} value={formatViews(totalViews)} unit={getViewsUnit(totalViews)} items={viewItems} icon={<IconX className="w-5 h-5 text-purple-500 dark:text-purple-400" />} />
                   <KpiCard title="分析対象ブランド" value={filteredData.length} unit="社" icon={<IconDatabase className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />} />
                   <KpiCard title="期間" value="7" unit="日間" icon={<IconChart className="w-5 h-5 text-amber-500 dark:text-amber-400" />} />
                 </div>
@@ -977,7 +1061,7 @@
                           </div>
                           <div className="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-3 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-blue-500 to-blue-400 dark:from-blue-600 dark:to-blue-400 h-full rounded-full relative transition-all duration-500" 
+                              className="bg-blue-500 dark:bg-blue-600 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${maxTv > 0 ? (d.tv/maxTv)*100 : 0}%`}}
                             >
                               <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer"></div>
@@ -1009,7 +1093,7 @@
                           </div>
                           <div className="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-3 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-purple-500 to-purple-400 dark:from-purple-600 dark:to-purple-400 h-full rounded-full relative transition-all duration-500" 
+                              className="bg-purple-500 dark:bg-purple-600 h-full rounded-full relative transition-all duration-500" 
                               style={{width: `${d.xViews === 0 ? 0 : Math.max((d.xViews/maxXViews)*100, 2)}%`}}
                             >
                                {d.xViews > 0 && <div className="absolute inset-0 bg-white/30 dark:bg-white/20 w-full animate-shimmer" style={{animationDelay: '0.5s'}}></div>}
@@ -1068,17 +1152,31 @@
           );
         }
 
-        function KpiCard({ title, value, unit, icon }) {
+        function KpiCard({ title, value, unit, icon, items }) {
           return (
             <div className="bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
               <div className="flex justify-between items-start mb-3">
                 <h4 className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">{title}</h4>
                 {icon}
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</span>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-500">{unit}</span>
-              </div>
+              {items ? (
+                <div className="flex flex-col gap-2 mt-1">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex justify-between items-end border-b border-slate-100 dark:border-slate-800/50 last:border-0 pb-1.5 last:pb-0">
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 truncate mr-2" title={item.label}>{item.label}</span>
+                      <div className="flex items-baseline gap-1 whitespace-nowrap">
+                        <span className="text-lg font-bold text-slate-900 dark:text-white leading-none">{item.value}</span>
+                        <span className="text-[10px] font-medium text-slate-500">{item.unit || unit}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-500">{unit}</span>
+                </div>
+              )}
             </div>
           );
         }
