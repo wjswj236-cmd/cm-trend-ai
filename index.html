@@ -127,7 +127,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX190dNgcyM8djjFtifykFJJcNgy7R0UqlAEAIRPk9vF3tnvWqjPCb6bVec8hbll/yMNnLnOPzIdvOg==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+ZZ3oWHsZGBSe4UAXcfMFj8YErCGIPNqmCbNnFBnGm5jwue3sifPXUZRtmvsYoXTfqz+4VLUx+Eg==";
     </script>
 
     <script type="text/babel">
@@ -693,7 +693,7 @@
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="サンプルのため下記のみ検索できます　→トヨタ(トヨタ自動車)、ユニクロ(ファーストリテイリング)、第一生命(Daiichi Life Group)、タウンワーク(インディード)、渡辺パイプ"
+                      placeholder="テスト版のため次のCMのみ分析できます　→トヨタ、ユニクロ、第一生命、タウンワーク、渡辺パイプ"
                       className="flex-1 max-h-40 min-h-[56px] py-4 pl-5 pr-14 bg-transparent text-slate-900 dark:text-slate-100 text-sm resize-none outline-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       rows={1}
                     />
@@ -915,7 +915,7 @@
                           type="text"
                           value={q}
                           onChange={(e) => handleUpdateQuery(i, e.target.value)}
-                          placeholder="会社名・ブランド名を入力（※テスト版のためトヨタ(トヨタ自動車)、ユニクロ(ファーストリテイリング)、第一生命(Daiichi Life Group)、タウンワーク(インディード)、渡辺パイプのみ）"
+                          placeholder="会社名・ブランド名を入力（※テスト版のためトヨタ、ユニクロ、第一生命、タウンワーク、渡辺パイプのみ）"
                           className="flex-1 bg-[#ffffff] dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 text-sm outline-none transition-all"
                         />
                         {queries.length > 1 && (
