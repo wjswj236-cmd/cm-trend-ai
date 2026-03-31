@@ -127,7 +127,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1949fld9elZwpNXQNTeDIvgouakM8HEDnD55KywME5UpptbCERTfCIhkRqQUhHIJ5ZJmuRmCb4vKw==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX19VzBGwGX1K0C7l/fJT36yonO8tyEQtwuLOeh+Z9yCNGQgUqZh6DCK0pcILEpHXBWDLck6xfUhn9A==";
     </script>
 
     <script type="text/babel">
@@ -639,7 +639,10 @@
                           {SUGGESTIONS[source].map((s, i) => (
                             <button
                               key={i}
-                              onClick={() => sendMessage(s)}
+                              onClick={() => {
+                                setInput(s);
+                                inputRef.current?.focus();
+                              }}
                               className="text-left px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-white dark:bg-[#0d1526]/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 text-[13px] leading-relaxed transition-all shadow-sm flex items-start gap-3 group"
                             >
                               <span className={`mt-0.5 flex-shrink-0 ${cfg.color} opacity-70 group-hover:opacity-100 transition-opacity`}><IconLightning className="w-4 h-4" /></span>
