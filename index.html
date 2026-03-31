@@ -127,7 +127,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX18GyI/fRbReGCJ7TI1RnoHiOe1Jy7Iujmo6vx9RC4Ujzma8Bcyla/CJOi2rumdyVgM2J1OEOyPZ4A==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1949fld9elZwpNXQNTeDIvgouakM8HEDnD55KywME5UpptbCERTfCIhkRqQUhHIJ5ZJmuRmCb4vKw==";
     </script>
 
     <script type="text/babel">
@@ -200,22 +200,28 @@
 
         const SUGGESTIONS = {
           tv: [
-            "最も放映回数が多いブランドはどこですか？",
-            "プライム帯に集中している商品を教えてください",
-            "ユニクロの出稿戦略を分析してください",
-            "各局の特徴的な出稿傾向は？",
+            "最近出稿が増えているテレビCMのジャンルと、主要なブランド名を教えて",
+            "〇〇ジャンルでCM出稿回数が多い順でランキングを作って",
+            "〇〇ジャンルで最近始まった注目の新規出稿CMを教えて",
+            "最も出稿回数が多いCMはどこですか？会社名とブランド名それぞれで教えて",
+            "自社（〇〇）と競合企業（△△）のテレビCM出稿状況を比較・分析して",
+            "〇〇（ブランド名）のテレビCM出稿戦略（局・時間帯・曜日などの偏り）を分析して"
           ],
           x: [
-            "X上で最もバズったCMはどれですか？",
-            "第一生命のリブランディングCMへの反応を分析して",
-            "渡辺パイプのバイラル成功要因を教えて",
-            "各ブランドのSNS反応をランキングして",
+            "〇〇（会社/ブランド名）のCMの評判を分析して",
+            "〇〇（会社/ブランド名）のCMについて、炎上の火種となりそうな投稿があれば教えて",
+            "〇〇（会社/ブランド名）のリブランディングCMに対するSNSのリアルな反応を分析して",
+            "自社CM（〇〇）と競合CM（△△）のSNSでの反響・口コミを比較調査して",
+            "CMを見たことがきっかけで「買った」「利用した」という購買行動に近い投稿が多いのは？",
+            "CMの視聴をきっかけに、企業のイメージアップや採用力向上に繋がっている好例を教えて"
           ],
           both: [
-            "TV放映量とX反応が乖離しているブランドはどれ？",
-            "渡辺パイプの総合的なCM効果を評価して",
-            "第一生命はTV露出量に対してX反応が少ない理由は？",
-            "今週のCM市場で注目すべきトレンドを教えて",
+            "〇〇（会社/ブランド名）のCM出稿戦略とSNSでの反響を総合的に分析して",
+            "CM出稿量とXの反響が乖離している（出稿量が多いのに話題にならない等）CMはどれ？",
+            "〇〇（会社/ブランド名）はCM出稿量に対してXでの反響が少ない理由はなぜ？",
+            "〇〇（ブランド/商品名）について、Xでの反響と出稿量から今後の売上げへの影響を予測して",
+            "最近新規CMが始まり、今後Xで投稿がさらに増えそうな注目のCMは何ですか？",
+            "自社（〇〇）の現在のTV出稿戦略について、SNSの反応を踏まえた次の一手（改善案）を提案して"
           ],
         };
 
@@ -627,16 +633,16 @@
                         TV-CMをあらゆる角度から調査・分析します。
                       </p>
 
-                      <div className="w-full max-w-2xl text-left">
+                      <div className="w-full max-w-4xl text-left">
                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 ml-1">おすすめの質問</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {SUGGESTIONS[source].map((s, i) => (
                             <button
                               key={i}
                               onClick={() => sendMessage(s)}
-                              className="text-left px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-white dark:bg-[#0d1526]/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 text-sm transition-all shadow-sm flex items-start gap-3 group"
+                              className="text-left px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-white dark:bg-[#0d1526]/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 text-[13px] leading-relaxed transition-all shadow-sm flex items-start gap-3 group"
                             >
-                              <span className={`mt-0.5 ${cfg.color} opacity-70 group-hover:opacity-100 transition-opacity`}><IconLightning className="w-4 h-4" /></span>
+                              <span className={`mt-0.5 flex-shrink-0 ${cfg.color} opacity-70 group-hover:opacity-100 transition-opacity`}><IconLightning className="w-4 h-4" /></span>
                               <span>{s}</span>
                             </button>
                           ))}
