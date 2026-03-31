@@ -127,7 +127,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+ZZ3oWHsZGBSe4UAXcfMFj8YErCGIPNqmCbNnFBnGm5jwue3sifPXUZRtmvsYoXTfqz+4VLUx+Eg==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+LjOB5Kdgjo6E5HvwwU02Ybp80SAgyJinhjG19PQbc1DqAlDpHpfdk5u+FSzmAyZ+4sfEnZDQfPw==";
     </script>
 
     <script type="text/babel">
@@ -180,6 +180,10 @@
 - 日本語で回答
 - 見出しや箇条書きを効果的に使う
 - 専門的でありながら明快に
+
+【出力形式の厳格なルール】
+- 表形式でデータを出力する場合は、Markdownの表（| で区切る形式）は一切使用せず、必ずHTMLの <table> <thead> <tbody> <tr> <th> <td> タグを用いて出力してください。
+- 上記のHTML表形式が難しい場合は、表形式を一切使わず、テキストと箇条書きのみで回答してください。
 `;
 
         function buildSystemPrompt(source) {
@@ -722,34 +726,85 @@
           const isUser = msg.role === "user";
 
           const renderContent = (text) => {
-            return text.split("\n").map((line, i) => {
-              if (line.match(/^#+\s+(.*)/)) {
-                const text = line.replace(/^#+\s+/, "");
-                return <h3 key={i} className="text-xl font-extrabold text-slate-900 dark:text-white mt-6 mb-3 border-b border-slate-200 dark:border-slate-700/50 pb-2">{text}</h3>;
+            const lines = text.split("\n");
+            const elements = [];
+            let inTable = false;
+            let tableHtml = "";
+
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+
+              // tableタグの開始を検知
+              if (line.toLowerCase().includes('<table')) {
+                inTable = true;
+                tableHtml = line + "\n";
+                // 1行で完結している場合
+                if (line.toLowerCase().includes('</table')) {
+                  inTable = false;
+                  let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
+                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+                  tableHtml = "";
+                }
+                continue;
               }
-              if (line.match(/^[-*]\s+(.*)/)) {
-                const text = line.replace(/^[-*]\s+/, "");
-                return (
+
+              // tableタグの中身を結合
+              if (inTable) {
+                tableHtml += line + "\n";
+                // tableタグの終了を検知してHTMLとしてパース
+                if (line.toLowerCase().includes('</table')) {
+                  inTable = false;
+                  let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
+                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+                  tableHtml = "";
+                }
+                continue;
+              }
+
+              // 通常のテキストやマークダウン行の処理
+              let cleanLine = line.replace(/```html/g, '').replace(/```/g, '');
+
+              if (cleanLine.match(/^#+\s+(.*)/)) {
+                const headingText = cleanLine.replace(/^#+\s+/, "");
+                elements.push(<h3 key={i} className="text-xl font-extrabold text-slate-900 dark:text-white mt-6 mb-3 border-b border-slate-200 dark:border-slate-700/50 pb-2">{headingText}</h3>);
+                continue;
+              }
+              if (cleanLine.match(/^[-*]\s+(.*)/)) {
+                const listText = cleanLine.replace(/^[-*]\s+/, "");
+                elements.push(
                   <div key={i} className="flex gap-2 mb-1.5 ml-1">
                     <span className={`text-${sourceColor}-500 dark:text-${sourceColor}-400 mt-1 flex-shrink-0`}><IconLightning className="w-3.5 h-3.5" /></span>
-                    <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
+                    <span dangerouslySetInnerHTML={{ __html: formatBold(listText) }} />
                   </div>
                 );
+                continue;
               }
-              if (line.match(/^\d+\.\s+(.*)/)) {
-                const num = line.match(/^(\d+)/)[1];
-                const text = line.replace(/^\d+\.\s+/, "");
-                return (
+              if (cleanLine.match(/^\d+\.\s+(.*)/)) {
+                const num = cleanLine.match(/^(\d+)/)[1];
+                const listText = cleanLine.replace(/^\d+\.\s+/, "");
+                elements.push(
                   <div key={i} className="flex gap-2.5 mb-1.5 ml-1 items-start">
                     <span className={`text-[10px] font-bold bg-${sourceColor}-100 dark:bg-${sourceColor}-500/20 text-${sourceColor}-700 dark:text-${sourceColor}-300 px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0`}>{num}</span>
-                    <span dangerouslySetInnerHTML={{ __html: formatBold(text) }} />
+                    <span dangerouslySetInnerHTML={{ __html: formatBold(listText) }} />
                   </div>
                 );
+                continue;
               }
-              if (line.trim() === "") return <div key={i} className="h-3" />;
+              if (cleanLine.trim() === "") {
+                elements.push(<div key={i} className="h-3" />);
+                continue;
+              }
               
-              return <div key={i} className="mb-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: formatBold(line) }} />;
-            });
+              elements.push(<div key={i} className="mb-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: formatBold(cleanLine) }} />);
+            }
+
+            // 万が一tableが閉じられていなかった場合の後処理
+            if (inTable && tableHtml) {
+              let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
+              elements.push(<div key="table-end" className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+            }
+
+            return elements;
           };
 
           const formatBold = (text) => {
