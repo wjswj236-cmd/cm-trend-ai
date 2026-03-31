@@ -127,7 +127,7 @@
         // 1. このファイルをブラウザで開き、左下のメニューから「⚙️ 設定」をクリック
         // 2. あなたのAPIキーと、任意の「パスワード」を入力して「暗号化文字列」を生成する
         // 3. 生成された文字列をコピーし、下の ENCRYPTED_API_KEY の "" の中に貼り付けて保存する
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+LjOB5Kdgjo6E5HvwwU02Ybp80SAgyJinhjG19PQbc1DqAlDpHpfdk5u+FSzmAyZ+4sfEnZDQfPw==";
+        const ENCRYPTED_API_KEY = "U2FsdGVkX18GyI/fRbReGCJ7TI1RnoHiOe1Jy7Iujmo6vx9RC4Ujzma8Bcyla/CJOi2rumdyVgM2J1OEOyPZ4A==";
     </script>
 
     <script type="text/babel">
@@ -725,24 +725,63 @@
         function MessageBubble({ msg, sourceColor }) {
           const isUser = msg.role === "user";
 
+          const renderMdTable = (rows, key) => {
+            if (rows.length < 2) return null;
+            
+            const extractCells = (rowStr) => {
+              const cells = rowStr.split('|');
+              // 先頭と末尾の空要素（|で囲まれている場合）を削除
+              if (cells.length > 0 && cells[0].trim() === '') cells.shift();
+              if (cells.length > 0 && cells[cells.length - 1].trim() === '') cells.pop();
+              return cells.map(s => s.trim());
+            };
+
+            const headers = extractCells(rows[0]);
+            // 2行目は区切り線（|---|---|）なのでスキップ
+            const bodyRows = rows.slice(2).map(extractCells);
+
+            return (
+              <div key={key} className="gemini-content overflow-x-auto w-full my-4 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm">
+                <table className="w-full border-collapse text-sm text-left !m-0">
+                  <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      {headers.map((h, i) => <th key={i} className="px-4 py-2.5 font-bold border-r last:border-r-0 border-slate-200 dark:border-slate-700 whitespace-nowrap">{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-[#0d1526]/50">
+                    {bodyRows.map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className="px-4 py-2.5 border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: formatBold(cell) }}></td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          };
+
           const renderContent = (text) => {
             const lines = text.split("\n");
             const elements = [];
             let inTable = false;
             let tableHtml = "";
+            let inMdTable = false;
+            let mdTableRows = [];
 
             for (let i = 0; i < lines.length; i++) {
               const line = lines[i];
+              let cleanLine = line.replace(/```html/g, '').replace(/```/g, '');
 
               // tableタグの開始を検知
-              if (line.toLowerCase().includes('<table')) {
+              if (cleanLine.toLowerCase().includes('<table')) {
                 inTable = true;
-                tableHtml = line + "\n";
+                tableHtml = cleanLine + "\n";
                 // 1行で完結している場合
-                if (line.toLowerCase().includes('</table')) {
+                if (cleanLine.toLowerCase().includes('</table')) {
                   inTable = false;
-                  let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
-                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: tableHtml }} />);
                   tableHtml = "";
                 }
                 continue;
@@ -750,19 +789,26 @@
 
               // tableタグの中身を結合
               if (inTable) {
-                tableHtml += line + "\n";
+                tableHtml += cleanLine + "\n";
                 // tableタグの終了を検知してHTMLとしてパース
-                if (line.toLowerCase().includes('</table')) {
+                if (cleanLine.toLowerCase().includes('</table')) {
                   inTable = false;
-                  let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
-                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+                  elements.push(<div key={`table-${i}`} className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: tableHtml }} />);
                   tableHtml = "";
                 }
                 continue;
               }
 
-              // 通常のテキストやマークダウン行の処理
-              let cleanLine = line.replace(/```html/g, '').replace(/```/g, '');
+              // Markdownの表を検知 (行が | で始まる場合)
+              if (cleanLine.trim().startsWith('|')) {
+                inMdTable = true;
+                mdTableRows.push(cleanLine.trim());
+                continue;
+              } else if (inMdTable) {
+                inMdTable = false;
+                elements.push(renderMdTable(mdTableRows, `md-table-${i}`));
+                mdTableRows = [];
+              }
 
               if (cleanLine.match(/^#+\s+(.*)/)) {
                 const headingText = cleanLine.replace(/^#+\s+/, "");
@@ -800,8 +846,10 @@
 
             // 万が一tableが閉じられていなかった場合の後処理
             if (inTable && tableHtml) {
-              let cleanHtml = tableHtml.replace(/```html/g, '').replace(/```/g, '');
-              elements.push(<div key="table-end" className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: cleanHtml }} />);
+              elements.push(<div key="table-end" className="gemini-content overflow-x-auto w-full my-4" dangerouslySetInnerHTML={{ __html: tableHtml }} />);
+            }
+            if (inMdTable && mdTableRows.length > 0) {
+              elements.push(renderMdTable(mdTableRows, `md-table-end`));
             }
 
             return elements;
